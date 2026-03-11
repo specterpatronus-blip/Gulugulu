@@ -1,0 +1,117 @@
+/* ====================================
+   CYBER-MASCOT - Futuristic Virtual Mascot
+   States: idle, thinking, found, not-found
+   ==================================== */
+
+:root {
+    --cyber-blue: #00f2ff;
+    --cyber-magenta: #ff00ff;
+    --cyber-glow: rgba(0, 242, 255, 0.5);
+}
+
+.mascot-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 0 20px var(--cyber-glow));
+}
+
+.mascot-svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Floating Animation */
+.mascot-floating {
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-15px) rotate(2deg);
+    }
+}
+
+/* Glow Pulse */
+.mascot-glow {
+    animation: glow-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow-pulse {
+    from {
+        filter: drop-shadow(0 0 5px var(--cyber-blue));
+    }
+
+    to {
+        filter: drop-shadow(0 0 20px var(--cyber-blue));
+    }
+}
+
+/* Eyes Animation */
+.mascot-eyes {
+    fill: var(--cyber-blue);
+}
+
+.mascot-state-thinking .mascot-eyes {
+    animation: eyes-scan 1.5s linear infinite;
+}
+
+@keyframes eyes-scan {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+}
+
+/* Mascot Speech Bubble */
+.mascot-speech {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(8, 8, 24, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--cyber-blue);
+    border-radius: 12px;
+    padding: 8px 16px;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.mascot-speech.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
+}
+
+.mascot-speech::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 10px;
+    height: 10px;
+    background: rgba(8, 8, 24, 0.8);
+    border-left: 1px solid var(--cyber-blue);
+    border-top: 1px solid var(--cyber-blue);
+}

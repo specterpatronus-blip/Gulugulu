@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minijuegos Educativos - Gulugulu</title>
+    <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
+    <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
+    <style>
+        /* ============ BASE ============ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --gulu: #5A9AB5;
+            --gulu-dark: #2C4A58;
+            --gulu-l: #E8F4FA;
+            --gulu-accent: #6366f1;
+            --text-main: #1A2E35;
+            --card-glass: rgba(255, 255, 255, 0.65);
+            --header-glass: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8fbff;
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24
+        }
+
+        /* ============ BACKGROUND ============ */
+        .bg-container {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            overflow: hidden;
+        }
+
+        .bg-webp {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bg-blur-gradient {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 24px;
+            backdrop-filter: blur(15px) saturate(180%);
+            background: var(--header-glass);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.02);
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo span {
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-size: .85rem;
+            font-weight: 700;
+            color: var(--gulu-dark);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+
+        .header-link:hover {
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+            border-color: var(--gulu);
+        }
+
+        /* ============ MINIJUEGOS LAYOUT ============ */
+        .minijuegos-container {
+            padding: 60px 24px 100px;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .page-title {
+            color: #0056D2;
+            font-size: clamp(2.5rem, 4.5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.04em;
+            margin-bottom: 16px;
+        }
+
+        .page-subtitle {
+            color: var(--text-main);
+            font-size: 1.25rem;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        /* ============ GRADE SELECTION ============ */
+        #grade-selection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .grade-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border-radius: 24px;
+            padding: 30px;
+            width: 250px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .grade-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: #fff;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .grade-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #fff;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .grade-card:hover .grade-icon {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .grade-title-card {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        /* Grade card specific coloring */
+        .grade-card[data-target="gs-1"] {
+            border-bottom-width: 6px;
+            border-bottom-color: #EF4444;
+        }
+
+        .grade-card[data-target="gs-1"] .grade-icon {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+        }
+
+        .grade-card[data-target="gs-2"] {
+            border-bottom-width: 6px;
+            border-bottom-color: #F97316;
+        }
+
+        .grade-card[data-target="gs-2"] .grade-icon {
+            background: linear-gradient(135deg, #F97316, #EA580C);
+        }
+
+        .grade-card[data-target="gs-3"] {
+            border-bottom-width: 6px;
+            border-bottom-color: #10B981;
+        }
+
+        .grade-card[data-target="gs-3"] .grade-icon {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+
+        .grade-card[data-target="gs-4"] {
+            border-bottom-width: 6px;
+            border-bottom-color: #3B82F6;
+        }
+
+        .grade-card[data-target="gs-4"] .grade-icon {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+        }
+
+        .grade-card[data-target="gs-5"] {
+            border-bottom-width: 6px;
+            border-bottom-color: #8B5CF6;
+        }
+
+        .grade-card[data-target="gs-5"] .grade-icon {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+        }
+
+        /* ============ GAMES VIEW ============ */
+        .games-view-container {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .back-to-grades {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #fff;
+            color: var(--gulu-dark);
+            border: 2px solid transparent;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            margin-bottom: 40px;
+        }
+
+        .back-to-grades:hover {
+            border-color: var(--gulu);
+            transform: translateX(-4px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .grade-section {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            display: none;
+            /* Hidden by JS initially */
+        }
+
+        .grade-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .grade-title::before {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 6px;
+            background: var(--gulu-accent);
+            border-radius: 10px;
+        }
+
+        .grade-section.gs-1 .grade-title::before {
+            background: #EF4444;
+        }
+
+        .grade-section.gs-2 .grade-title::before {
+            background: #F97316;
+        }
+
+        .grade-section.gs-3 .grade-title::before {
+            background: #10B981;
+        }
+
+        .grade-section.gs-4 .grade-title::before {
+            background: #3B82F6;
+        }
+
+        .grade-section.gs-5 .grade-title::before {
+            background: #8B5CF6;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        /* ============ THUMBNAIL GAME CARDS ============ */
+        .game-card {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .gc-thumb {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #f1f5f9;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gc-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .game-card:hover .gc-thumb img {
+            transform: scale(1.05);
+        }
+
+        .gc-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gc-play {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gulu);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .gc-play .material-symbols-outlined {
+            font-size: 28px;
+            margin-left: 4px;
+            /* optical alignment for play button */
+        }
+
+        .game-card:hover .gc-overlay {
+            opacity: 1;
+        }
+
+        .game-card:hover .gc-play {
+            transform: scale(1);
+        }
+
+        .gc-info {
+            padding: 16px;
+        }
+
+        .gc-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .gc-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            color: rgba(0, 0, 0, 0.4);
+            font-size: .8rem;
+            font-weight: 700;
+            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media(max-width:1024px) {
+            .bg-blur-gradient {
+                background: rgba(255, 255, 255, 0.5);
+            }
+
+            .grade-section {
+                padding: 30px 20px;
+            }
+        }
+
+        @media(max-width:480px) {
+            .page-title {
+                font-size: 2.2rem;
+            }
+
+            .grade-title {
+                font-size: 1.8rem;
+            }
+
+            .grade-card {
+                width: 100%;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated background -->
+    <div class="bg-container">
+        <img src="/static/videos/fondo.webp" alt="" class="bg-webp" aria-hidden="true" />
+    </div>
+
+    <!-- Blur/Contrast overlay -->
+    <div class="bg-blur-gradient"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+                <span>gulugulu</span>
+            </a>
+            <a href="/" class="header-link">
+                <span class="material-symbols-outlined"
+                    style="font-size:18px;font-variation-settings:'FILL' 0,'wght' 400">home</span>
+                Volver
+            </a>
+        </div>
+    </header>
+
+    <main class="minijuegos-container">
+        <div class="page-header" id="page-header">
+            <h1 class="page-title">Minijuegos Educativos</h1>
+            <p class="page-subtitle" id="subtitle">Aprende jugando con Gulu. Selecciona tu grado escolar.</p>
+        </div>
+
+        <!-- GRADE SELECTION VIEW -->
+        <div id="grade-selection">
+            <div class="grade-card" data-target="gs-1">
+                <div class="grade-icon"><span class="material-symbols-outlined">extension</span></div>
+                <div class="grade-title-card">Primer Grado</div>
+            </div>
+            <div class="grade-card" data-target="gs-2">
+                <div class="grade-icon"><span class="material-symbols-outlined">calculate</span></div>
+                <div class="grade-title-card">Segundo Grado</div>
+            </div>
+            <div class="grade-card" data-target="gs-3">
+                <div class="grade-icon"><span class="material-symbols-outlined">menu_book</span></div>
+                <div class="grade-title-card">Tercer Grado</div>
+            </div>
+            <div class="grade-card" data-target="gs-4">
+                <div class="grade-icon"><span class="material-symbols-outlined">public</span></div>
+                <div class="grade-title-card">Cuarto Grado</div>
+            </div>
+            <div class="grade-card" data-target="gs-5">
+                <div class="grade-icon"><span class="material-symbols-outlined">science</span></div>
+                <div class="grade-title-card">Quinto Grado</div>
+            </div>
+        </div>
+
+        <!-- GAMES VIEW CONTAINER -->
+        <div class="games-view-container" id="games-view">
+            <button class="back-to-grades" id="btn-back">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Elegir otro grado
+            </button>
+
+            <!-- Grade 1 -->
+            <div class="grade-section gs-1" id="gs-1">
+                <h2 class="grade-title">Primer Grado</h2>
+                <div class="games-grid">
+                    {% for i in range(1, 11) %}
+                    <a href="/juego/1/{{ i }}" class="game-card">
+                        <div class="gc-thumb">
+                            <img src="/static/images/miniaturas/Grado_1/min{{ i }}.png" alt="Juego {{ i }}"
+                                onerror="this.src='/static/images/gulu-icon.jpeg'" />
+                            <div class="gc-overlay">
+                                <div class="gc-play"><span class="material-symbols-outlined">play_arrow</span></div>
+                            </div>
+                        </div>
+                        <div class="gc-info">
+                            <h3 class="gc-title">Juego {{ i }}</h3>
+                            <p class="gc-desc">Aventura educativa</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Grade 2 -->
+            <div class="grade-section gs-2" id="gs-2">
+                <h2 class="grade-title">Segundo Grado</h2>
+                <div class="games-grid">
+                    {% for i in range(1, 11) %}
+                    <a href="#" class="game-card">
+                        <div class="gc-thumb">
+                            <img src="/static/images/miniaturas/Grado_2/min{{ i }}.png" alt="Juego {{ i }}"
+                                onerror="this.src='/static/images/gulu-icon.jpeg'" />
+                            <div class="gc-overlay">
+                                <div class="gc-play"><span class="material-symbols-outlined">play_arrow</span></div>
+                            </div>
+                        </div>
+                        <div class="gc-info">
+                            <h3 class="gc-title">Juego {{ i }}</h3>
+                            <p class="gc-desc">Desafío matemático</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Grade 3 -->
+            <div class="grade-section gs-3" id="gs-3">
+                <h2 class="grade-title">Tercer Grado</h2>
+                <div class="games-grid">
+                    {% for i in range(1, 11) %}
+                    <a href="#" class="game-card">
+                        <div class="gc-thumb">
+                            <img src="/static/images/miniaturas/Grado_3/min{{ i }}.png" alt="Juego {{ i }}"
+                                onerror="this.src='/static/images/gulu-icon.jpeg'" />
+                            <div class="gc-overlay">
+                                <div class="gc-play"><span class="material-symbols-outlined">play_arrow</span></div>
+                            </div>
+                        </div>
+                        <div class="gc-info">
+                            <h3 class="gc-title">Juego {{ i }}</h3>
+                            <p class="gc-desc">Lectura veloz</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Grade 4 -->
+            <div class="grade-section gs-4" id="gs-4">
+                <h2 class="grade-title">Cuarto Grado</h2>
+                <div class="games-grid">
+                    {% for i in range(1, 11) %}
+                    <a href="#" class="game-card">
+                        <div class="gc-thumb">
+                            <img src="/static/images/miniaturas/Grado_4/min{{ i }}.png" alt="Juego {{ i }}"
+                                onerror="this.src='/static/images/gulu-icon.jpeg'" />
+                            <div class="gc-overlay">
+                                <div class="gc-play"><span class="material-symbols-outlined">play_arrow</span></div>
+                            </div>
+                        </div>
+                        <div class="gc-info">
+                            <h3 class="gc-title">Juego {{ i }}</h3>
+                            <p class="gc-desc">Geografía divertida</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Grade 5 -->
+            <div class="grade-section gs-5" id="gs-5">
+                <h2 class="grade-title">Quinto Grado</h2>
+                <div class="games-grid">
+                    {% for i in range(1, 11) %}
+                    <a href="#" class="game-card">
+                        <div class="gc-thumb">
+                            <img src="/static/images/miniaturas/Grado_5/min{{ i }}.png" alt="Juego {{ i }}"
+                                onerror="this.src='/static/images/gulu-icon.jpeg'" />
+                            <div class="gc-overlay">
+                                <div class="gc-play"><span class="material-symbols-outlined">play_arrow</span></div>
+                            </div>
+                        </div>
+                        <div class="gc-info">
+                            <h3 class="gc-title">Juego {{ i }}</h3>
+                            <p class="gc-desc">Ciencia en acción</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="footer">🐧 Gulu busca en tu Biblioteca Escolar</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gradeSelection = document.getElementById('grade-selection');
+            const gamesView = document.getElementById('games-view');
+            const btnBack = document.getElementById('btn-back');
+            const subtitle = document.getElementById('subtitle');
+
+            const gradeCards = document.querySelectorAll('.grade-card');
+            const sections = document.querySelectorAll('.grade-section');
+
+            // Handle grade click
+            gradeCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const targetId = card.getAttribute('data-target');
+
+                    // Hide selection, show games view
+                    gradeSelection.style.display = 'none';
+                    gamesView.style.display = 'block';
+                    subtitle.innerText = "¡A jugar!";
+
+                    // Hide all sections, show specific one
+                    sections.forEach(sec => sec.style.display = 'none');
+                    document.getElementById(targetId).style.display = 'block';
+
+                    // Smooth scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+
+            // Handle back button
+            btnBack.addEventListener('click', () => {
+                gamesView.style.display = 'none';
+                gradeSelection.style.display = 'flex';
+                subtitle.innerText = "Aprende jugando con Gulu. Selecciona tu grado escolar.";
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+
+</html>

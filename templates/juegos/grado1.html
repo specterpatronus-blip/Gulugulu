@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minijuegos 1º Grado - Gulugulu</title>
+    <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
+    <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
+
+    <!-- FRAMEWORKS -->
+    <script src="/static/js/vue.global.js"></script>
+    <script src="/static/js/gsap.min.js"></script>
+    <script src="/static/js/confetti.browser.min.js"></script>
+
+    <style>
+        /* ============ BASE ============ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --gulu: #5A9AB5;
+            --gulu-dark: #2C4A58;
+            --gulu-l: #E8F4FA;
+            --gulu-accent: #6366f1;
+            --text-main: #1A2E35;
+            --card-glass: rgba(255, 255, 255, 0.85);
+            --header-glass: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8fbff;
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* ============ BACKGROUND ============ */
+        .bg-container {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            overflow: hidden;
+        }
+
+        .bg-webp {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bg-blur-gradient {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 24px;
+            backdrop-filter: blur(15px) saturate(180%);
+            background: var(--header-glass);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.02);
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo span {
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-size: .85rem;
+            font-weight: 700;
+            color: var(--gulu-dark);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .header-link:hover {
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+            border-color: var(--gulu);
+        }
+
+        /* ============ GAME UI ============ */
+        #game-app {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-glass);
+            backdrop-filter: blur(20px);
+            padding: 20px 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            margin-bottom: 40px;
+        }
+
+        .level-info h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0056D2;
+            margin-bottom: 4px;
+        }
+
+        .level-info p {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: #fff;
+            padding: 10px 20px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-box.highlight {
+            border-color: #3B82F6;
+            background: #EFF6FF;
+            min-width: 100px;
+        }
+
+        .stat-box span {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-box strong {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .game-canvas {
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 50px;
+            min-height: 500px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prompt-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .btn-option {
+            padding: 20px 40px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: #fff;
+            border: 4px solid #CBD5E1;
+            border-radius: 20px;
+            color: var(--text-main);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-option.large-text {
+            font-size: 4rem;
+            width: 120px;
+            height: 120px;
+        }
+
+        .btn-option:hover {
+            transform: translateY(-5px);
+            border-color: #3B82F6;
+            box-shadow: 0 15px 25px rgba(59, 130, 246, 0.2);
+            color: #3B82F6;
+        }
+
+        .options-row {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* GAME 1: MEMORIA CLASSES */
+        .memory-board {
+            display: grid;
+            gap: 16px;
+            perspective: 1000px;
+            grid-template-columns: repeat(4, 90px);
+        }
+
+        .card-container {
+            width: 100%;
+            aspect-ratio: 1/1;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .card-container.flipped .card-inner,
+        .card-container.matched .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            border: 4px solid #fff;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: #fff;
+            transform: rotateY(0deg);
+        }
+
+        .card-front::after {
+            content: '?';
+            font-size: 3rem;
+            font-weight: 800;
+            opacity: 0.5;
+        }
+
+        .card-back {
+            background: #fff;
+            transform: rotateY(180deg);
+        }
+
+        .card-icon {
+            font-size: 3.5rem !important;
+        }
+
+        .card-container.matched .card-face {
+            border-color: #10B981;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* GAME 2: BUBBLES */
+        .bubble-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            max-width: 600px;
+        }
+
+        .bubble {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, #93C5FD);
+            box-shadow: inset -10px -10px 20px rgba(59, 130, 246, 0.2), 0 10px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1E3A8A;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            animation: float 3s ease-in-out infinite alternate;
+        }
+
+        .bubble:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(5px);
+            }
+
+            to {
+                transform: translateY(-15px);
+            }
+        }
+
+        /* GAME 3/4: ICONS ROW */
+        .icons-display {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 4rem;
+            color: #F59E0B;
+        }
+
+        .math-expr {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 40px;
+            color: #111827;
+        }
+
+        /* GAME 5: ALPHABET */
+        .alpha-grid {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn-alpha {
+            width: 90px;
+            height: 90px;
+            border-radius: 20px;
+            font-size: 3rem;
+            font-weight: 800;
+            border: 4px solid #E2E8F0;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-alpha.correct {
+            background: #10B981;
+            color: white;
+            border-color: #059669;
+            pointer-events: none;
+        }
+
+        /* GAME 6: SHAPES */
+        .target-shape {
+            font-size: 8rem;
+            color: #1e293b;
+            margin-bottom: 40px;
+            filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.1));
+        }
+
+        /* GAME 7: WORD */
+        .word-display {
+            font-size: 5rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            margin-bottom: 40px;
+            color: #0056D2;
+        }
+
+        .blinking-cursor {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* GAME 8: COLORS */
+        .color-prompt {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        .btn-color {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 6px solid #fff;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-color:hover {
+            transform: scale(1.1);
+        }
+
+        /* GAME 10: SEQUENCE */
+        .sequence-display {
+            display: flex;
+            gap: 20px;
+            font-size: 5rem;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .seq-box {
+            background: #fff;
+            border: 4px dashed #CBD5E1;
+            border-radius: 20px;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94A3B8;
+            font-size: 3rem;
+        }
+
+        /* ============ MODAL ============ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 50px 40px;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            position: relative;
+        }
+
+        .modal-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #F59E0B, #FCD34D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-content h2 {
+            font-size: 2.5rem;
+            color: #111827;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .modal-content p {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 36px;
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 800;
+            border: none;
+            border-radius: 99px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.5s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-container"><img src="/static/videos/fondo.webp" alt="" class="bg-webp" aria-hidden="true" /></div>
+    <div class="bg-blur-gradient"></div>
+
+    <header class="header">
+        <a href="/" class="logo">
+            <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+            <span>gulugulu</span>
+        </a>
+        <a href="/minijuegos" class="header-link">
+            <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
+            Grados
+        </a>
+    </header>
+
+    <div id="game-app">
+        <div class="game-top-bar">
+            <div class="level-info">
+                <h1>[[ config.title ]]</h1>
+                <p>Juego [[ gameId ]] de 10 • Primer Grado</p>
+            </div>
+            <div class="stats">
+                <div class="stat-box" v-if="config.showScore">
+                    <span>Puntos</span>
+                    <strong>[[ score ]]/[[ config.maxScore ]]</strong>
+                </div>
+                <div class="stat-box highlight">
+                    <span>Tiempo</span>
+                    <strong>[[ formattedTime ]]</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-canvas" id="canvas-area">
+
+            <!-- GAME 1: MEMORIA -->
+            <template v-if="gameId === 1">
+                <div class="prompt-text">Encuentra las parejas</div>
+                <div class="memory-board">
+                    <div class="card-container" v-for="(card, i) in g1.cards" :key="card.id"
+                        :class="{ flipped: card.isFlipped, matched: card.isMatched }" @click="playG1(i)">
+                        <div class="card-inner">
+                            <div class="card-face card-front"></div>
+                            <div class="card-face card-back"><span class="material-symbols-outlined card-icon"
+                                    :style="{ color: card.color }">[[ card.icon ]]</span></div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- GAME 2: CAZA VOCALES -->
+            <template v-if="gameId === 2">
+                <div class="prompt-text">¡Atrapa solo las vocales!</div>
+                <div class="bubble-grid">
+                    <div class="bubble" v-for="b in g2.bubbles" :key="b.id" v-show="!b.popped"
+                        @click="playG2(b, $event)" :style="{ animationDelay: b.delay }">
+                        [[ b.letter ]]
+                    </div>
+                </div>
+            </template>
+
+            <!-- GAME 3: CONTANDO -->
+            <template v-if="gameId === 3">
+                <div class="prompt-text">¿Cuántos perritos hay?</div>
+                <div class="icons-display">
+                    <span class="material-symbols-outlined" v-for="i in g3.count" :key="i"
+                        style="color:#8B5CF6">pets</span>
+                </div>
+                <div class="options-row">
+                    <button class="btn-option large-text" v-for="opt in g3.options" :key="opt"
+                        @click="playG3(opt, $event)">[[ opt ]]</button>
+                </div>
+            </template>
+
+            <!-- GAME 4: SUMA -->
+            <template v-if="gameId === 4">
+                <div class="prompt-text">¿Cuánto es la suma?</div>
+                <div class="math-expr">
+                    <div><span class="material-symbols-outlined" v-for="i in g4.n1" :key="'a'+i"
+                            style="color:#EF4444">nutrition</span></div>
+                    <span>+</span>
+                    <div><span class="material-symbols-outlined" v-for="i in g4.n2" :key="'b'+i"
+                            style="color:#EF4444">nutrition</span></div>
+                    <span>=</span>
+                    <span class="material-symbols-outlined" style="color:#CBD5E1">help</span>
+                </div>
+                <div class="options-row">
+                    <button class="btn-option large-text" v-for="opt in g4.options" :key="opt"
+                        @click="playG4(opt, $event)">[[ opt ]]</button>
+                </div>
+            </template>
+
+            <!-- GAME 5: ABECEDARIO -->
+            <template v-if="gameId === 5">
+                <div class="prompt-text">Toca las letras en orden (A, B, C...)</div>
+                <div class="alpha-grid">
+                    <button class="btn-alpha" v-for="btn in g5.buttons" :key="btn.char"
+                        :class="{ correct: btn.correct }" @click="playG5(btn, $event)">
+                        [[ btn.char ]]
+                    </button>
+                </div>
+            </template>
+
+            <!-- GAME 6: FORMAS -->
+            <template v-if="gameId === 6">
+                <div class="prompt-text">¿Qué forma es esta?</div>
+                <span class="material-symbols-outlined target-shape">[[ g6.targetIcon ]]</span>
+                <div class="options-row">
+                    <button class="btn-option" v-for="opt in g6.options" :key="opt.icon" @click="playG6(opt, $event)">
+                        <span class="material-symbols-outlined" :style="{color: opt.color, fontSize: '4rem'}">[[
+                            opt.icon ]]</span>
+                    </button>
+                </div>
+            </template>
+
+            <!-- GAME 7: PALABRA -->
+            <template v-if="gameId === 7">
+                <div class="prompt-text">Completa la palabra</div>
+                <span class="material-symbols-outlined"
+                    style="font-size:8rem; color:#F59E0B; margin-bottom:20px;">pets</span>
+                <div class="word-display">P <span class="blinking-cursor">_</span> R R O</div>
+                <div class="options-row">
+                    <button class="btn-option large-text" v-for="v in ['A', 'E', 'I', 'O', 'U']" :key="v"
+                        @click="playG7(v, $event)">[[ v ]]</button>
+                </div>
+            </template>
+
+            <!-- GAME 8: COLORES -->
+            <template v-if="gameId === 8">
+                <div class="prompt-text">Toca el color:</div>
+                <div class="color-prompt" :style="{color: '#111827'}">[[ g8.targetName ]]</div>
+                <div class="options-row">
+                    <div class="btn-color" v-for="c in g8.colors" :key="c.hex" :style="{ backgroundColor: c.hex }"
+                        @click="playG8(c, $event)"></div>
+                </div>
+            </template>
+
+            <!-- GAME 9: MAYOR/MENOR -->
+            <template v-if="gameId === 9">
+                <div class="prompt-text">¿Qué número es MAYOR?</div>
+                <div class="options-row" style="gap: 60px;">
+                    <button class="btn-option large-text" @click="playG9(g9.n1, $event)">[[ g9.n1 ]]</button>
+                    <button class="btn-option large-text" @click="playG9(g9.n2, $event)">[[ g9.n2 ]]</button>
+                </div>
+            </template>
+
+            <!-- GAME 10: PATRONES -->
+            <template v-if="gameId === 10">
+                <div class="prompt-text">¿Qué figura sigue?</div>
+                <div class="sequence-display">
+                    <span class="material-symbols-outlined" v-for="(ico, i) in g10.seq" :key="i"
+                        :style="{color: g10.color}">[[ ico ]]</span>
+                    <div class="seq-box">?</div>
+                </div>
+                <div class="options-row">
+                    <button class="btn-option" v-for="opt in g10.options" :key="opt" @click="playG10(opt, $event)">
+                        <span class="material-symbols-outlined" :style="{color: g10.color, fontSize: '4rem'}">[[ opt
+                            ]]</span>
+                    </button>
+                </div>
+            </template>
+
+        </div>
+
+        <!-- Victory Modal -->
+        <transition name="fade">
+            <div class="modal-overlay" v-show="gameWon">
+                <div class="modal-content" id="victoryModal">
+                    <span class="material-symbols-outlined modal-icon">stars</span>
+                    <h2>¡Excelente Trabajo!</h2>
+                    <p>¡Lo lograste en [[ formattedTime ]]!</p>
+                    <a v-if="gameId < 10" :href="'/juego/1/' + (gameId + 1)" class="btn-primary">
+                        Siguiente Juego <span class="material-symbols-outlined">arrow_forward</span>
+                    </a>
+                    <a v-else href="/minijuegos" class="btn-primary">
+                        Completaste Todo <span class="material-symbols-outlined">check_circle</span>
+                    </a>
+                </div>
+            </div>
+        </transition>
+    </div>
+
+    <!-- SERVER INJECTS LEVEL -->
+    <script>
+        const GAME_ID = {{ game_id|default (1) }};
+    </script>
+
+    <!-- VUE 3 ENGINE -->
+    <script>
+        const { createApp, ref, computed, reactive, onMounted } = Vue;
+
+        createApp({
+            compilerOptions: { delimiters: ['[[', ']]'] },
+            setup() {
+                const gameId = ref(GAME_ID);
+                const timer = ref(0);
+                const score = ref(0);
+                const gameWon = ref(false);
+                let timerInterval = null;
+
+                // Titles and configs
+                const gameConfigs = {
+                    1: { title: "Memoria", showScore: false },
+                    2: { title: "Caza de Vocales", showScore: true, maxScore: 5 },
+                    3: { title: "Contando Animalitos", showScore: false },
+                    4: { title: "Suma Frutal", showScore: false },
+                    5: { title: "El Abecedario", showScore: true, maxScore: 5 },
+                    6: { title: "Formas y Sombras", showScore: false },
+                    7: { title: "La Letra Perdida", showScore: false },
+                    8: { title: "Colores Rápidos", showScore: false },
+                    9: { title: "Mayor o Menor", showScore: false },
+                    10: { title: "Sigue el Patrón", showScore: false },
+                };
+                const config = computed(() => gameConfigs[gameId.value] || gameConfigs[1]);
+
+                // Formatted timer
+                const formattedTime = computed(() => {
+                    const m = Math.floor(timer.value / 60);
+                    const s = timer.value % 60;
+                    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                });
+
+                // Utils
+                const shuffle = (array) => {
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [array[i], array[j]] = [array[j], array[i]];
+                    }
+                    return array;
+                };
+
+                const shake = (el) => {
+                    gsap.fromTo(el, { x: -10 }, { x: 10, duration: 0.1, yoyo: true, repeat: 3, onComplete: () => gsap.set(el, { x: 0 }) });
+                };
+
+                const winGame = () => {
+                    clearInterval(timerInterval);
+                    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                    setTimeout(() => {
+                        gameWon.value = true;
+                        Vue.nextTick(() => {
+                            gsap.fromTo("#victoryModal",
+                                { scale: 0.5, opacity: 0, y: 50 },
+                                { scale: 1, opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.2)" }
+                            );
+                        });
+                    }, 500);
+                };
+
+                // STATE CONTAINERS FOR GAMES
+                const g1 = reactive({ cards: [], flipped: [], locked: false, matches: 0 });
+                const g2 = reactive({ bubbles: [] });
+                const g3 = reactive({ count: 5, options: [] });
+                const g4 = reactive({ n1: 2, n2: 3, options: [] });
+                const g5 = reactive({ buttons: [], expected: 'A' });
+                const g6 = reactive({ targetIcon: '', options: [] });
+                const g7 = reactive({});
+                const g8 = reactive({ targetName: '', targetHex: '', colors: [] });
+                const g9 = reactive({ n1: 0, n2: 0, answer: 0 });
+                const g10 = reactive({ seq: [], options: [], color: '', answer: '' });
+
+                // INITS
+                const initG1 = () => {
+                    const icons = ['pets', 'eco', 'favorite', 'star', 'lightbulb', 'rocket_launch'];
+                    const colors = ['#EF4444', '#10B981', '#F472B6', '#F59E0B', '#FBBF24', '#3B82F6'];
+                    let deck = [];
+                    let id = 0;
+                    icons.forEach((ico, i) => {
+                        deck.push({ id: id++, icon: ico, color: colors[i], isFlipped: false, isMatched: false });
+                        deck.push({ id: id++, icon: ico, color: colors[i], isFlipped: false, isMatched: false });
+                    });
+                    g1.cards = shuffle(deck);
+                };
+
+                const initG2 = () => {
+                    const chars = ['A', 'E', 'I', 'O', 'U', 'B', 'C', 'D', 'F', 'G', 'P', 'M', 'L', 'S', 'T'];
+                    const mix = shuffle(chars).slice(0, 12);
+                    // ensure at least 5 vowels
+                    const vowels = ['A', 'E', 'I', 'O', 'U'];
+                    for (let i = 0; i < 5; i++) {
+                        if (!mix.includes(vowels[i])) mix[i] = vowels[i];
+                    }
+                    g2.bubbles = shuffle(mix).map((c, i) => ({
+                        id: i, letter: c, popped: false, delay: `${Math.random() * 2}s`, isVowel: vowels.includes(c)
+                    }));
+                };
+
+                const initG3 = () => {
+                    g3.count = Math.floor(Math.random() * 5) + 3; // 3 to 7
+                    let opts = [g3.count, g3.count + 1, g3.count - 1];
+                    if (opts[2] === 0) opts[2] = g3.count + 2;
+                    g3.options = shuffle(opts);
+                };
+
+                const initG4 = () => {
+                    g4.n1 = Math.floor(Math.random() * 4) + 1; // 1-4
+                    g4.n2 = Math.floor(Math.random() * 4) + 1; // 1-4
+                    let ans = g4.n1 + g4.n2;
+                    let opts = [ans, ans + 1, ans - 1];
+                    if (opts[2] === 0) opts[2] = ans + 2;
+                    g4.options = shuffle(opts);
+                };
+
+                const initG5 = () => {
+                    const chars = ['A', 'B', 'C', 'D', 'E'];
+                    g5.buttons = shuffle([...chars]).map(c => ({ char: c, correct: false }));
+                    g5.expected = 'A';
+                };
+
+                const initG6 = () => {
+                    const shapes = [{ icon: 'circle', c: '#EF4444' }, { icon: 'square', c: '#3B82F6' }, { icon: 'change_history', c: '#10B981' }, { icon: 'star', c: '#F59E0B' }];
+                    const target = shapes[Math.floor(Math.random() * shapes.length)];
+                    g6.targetIcon = target.icon;
+                    g6.options = shuffle([...shapes]);
+                };
+
+                const initG8 = () => {
+                    const dict = [
+                        { name: 'ROJO', hex: '#EF4444' }, { name: 'AZUL', hex: '#3B82F6' },
+                        { name: 'VERDE', hex: '#10B981' }, { name: 'AMARILLO', hex: '#F59E0B' }
+                    ];
+                    const target = dict[Math.floor(Math.random() * dict.length)];
+                    g8.targetName = target.name;
+                    g8.targetHex = target.hex;
+                    g8.colors = shuffle([...dict]);
+                };
+
+                const initG9 = () => {
+                    g9.n1 = Math.floor(Math.random() * 8) + 2;
+                    g9.n2 = Math.floor(Math.random() * 8) + 2;
+                    if (g9.n1 === g9.n2) g9.n1++;
+                    g9.answer = Math.max(g9.n1, g9.n2);
+                };
+
+                const initG10 = () => {
+                    const shapes = ['circle', 'square', 'change_history', 'star'];
+                    const s1 = shapes[Math.floor(Math.random() * shapes.length)];
+                    let s2 = shapes[Math.floor(Math.random() * shapes.length)];
+                    while (s2 === s1) s2 = shapes[Math.floor(Math.random() * shapes.length)];
+                    g10.seq = [s1, s2, s1];
+                    g10.answer = s2;
+                    g10.color = ['#EF4444', '#3B82F6', '#10B981', '#8B5CF6'][Math.floor(Math.random() * 4)];
+                    let opts = [s2, s1];
+                    const rest = shapes.filter(x => x !== s1 && x !== s2);
+                    opts.push(rest[0]);
+                    g10.options = shuffle(opts);
+                };
+
+                // GAME PLAYS
+                const playG1 = (i) => {
+                    if (g1.locked || g1.cards[i].isFlipped || g1.cards[i].isMatched) return;
+                    g1.cards[i].isFlipped = true;
+                    g1.flipped.push(i);
+                    if (g1.flipped.length === 2) {
+                        g1.locked = true;
+                        const c1 = g1.cards[g1.flipped[0]];
+                        const c2 = g1.cards[g1.flipped[1]];
+                        if (c1.icon === c2.icon) {
+                            setTimeout(() => {
+                                c1.isMatched = c2.isMatched = true;
+                                g1.flipped = []; g1.locked = false; g1.matches++;
+                                if (g1.matches === 6) winGame();
+                            }, 400);
+                        } else {
+                            setTimeout(() => {
+                                c1.isFlipped = c2.isFlipped = false;
+                                g1.flipped = []; g1.locked = false;
+                            }, 1000);
+                        }
+                    }
+                };
+
+                const playG2 = (b, e) => {
+                    if (b.popped) return;
+                    if (b.isVowel) {
+                        b.popped = true; score.value++;
+                        gsap.to(e.target, { scale: 0, opacity: 0, duration: 0.3 });
+                        if (score.value === 5) winGame();
+                    } else {
+                        shake(e.target);
+                    }
+                };
+
+                const playG3 = (val, e) => {
+                    if (val === g3.count) winGame();
+                    else shake(e.target);
+                };
+
+                const playG4 = (val, e) => {
+                    if (val === (g4.n1 + g4.n2)) winGame();
+                    else shake(e.target);
+                };
+
+                const playG5 = (btn, e) => {
+                    if (btn.char === g5.expected) {
+                        btn.correct = true; score.value++;
+                        gsap.fromTo(e.target, { scale: 1.2 }, { scale: 1, duration: 0.3 });
+                        g5.expected = String.fromCharCode(g5.expected.charCodeAt(0) + 1);
+                        if (score.value === 5) winGame();
+                    } else {
+                        shake(e.target);
+                    }
+                };
+
+                const playG6 = (opt, e) => {
+                    if (opt.icon === g6.targetIcon) winGame();
+                    else shake(e.target);
+                };
+
+                const playG7 = (v, e) => {
+                    if (v === 'E') winGame();
+                    else shake(e.target);
+                };
+
+                const playG8 = (c, e) => {
+                    if (c.hex === g8.targetHex) winGame();
+                    else shake(e.target);
+                };
+
+                const playG9 = (val, e) => {
+                    if (val === g9.answer) winGame();
+                    else shake(e.target);
+                };
+
+                const playG10 = (opt, e) => {
+                    if (opt === g10.answer) winGame();
+                    else shake(e.target);
+                };
+
+
+                onMounted(() => {
+                    // Determine which init to call
+                    switch (gameId.value) {
+                        case 1: initG1(); break;
+                        case 2: initG2(); break;
+                        case 3: initG3(); break;
+                        case 4: initG4(); break;
+                        case 5: initG5(); break;
+                        case 6: initG6(); break;
+                        case 7: break; // G7 is static
+                        case 8: initG8(); break;
+                        case 9: initG9(); break;
+                        case 10: initG10(); break;
+                    }
+
+                    // Entry animation
+                    gsap.fromTo("#canvas-area", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8 });
+
+                    timerInterval = setInterval(() => timer.value++, 1000);
+                });
+
+                return {
+                    gameId, config,
+                    timer, score, formattedTime, gameWon,
+                    g1, g2, g3, g4, g5, g6, g8, g9, g10,
+                    playG1, playG2, playG3, playG4, playG5, playG6, playG7, playG8, playG9, playG10
+                };
+            }
+        }).mount('#game-app');
+    </script>
+</body>
+
+</html>

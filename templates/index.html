@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gulugulu</title>
+    <link rel="icon" href="static/images/icono.png" type="image/png">
+    <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
+    <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
+    <script src="/static/js/gsap.min.js"></script>
+    <style>
+        /* ============ BASE ============ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --gulu: #5A9AB5;
+            --gulu-dark: #2C4A58;
+            --gulu-l: #E8F4FA;
+            --gulu-accent: #6366f1;
+            --text-main: #1b351a;
+            --card-glass: rgba(255, 255, 255, 0.65);
+            --header-glass: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8fbff;
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24
+        }
+
+
+
+        /* ============ BACKGROUND ============ */
+        .bg-container {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            overflow: hidden;
+        }
+
+        .bg-webp {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bg-blur-gradient {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 24px;
+            backdrop-filter: blur(15px) saturate(180%);
+            background: var(--header-glass);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.02);
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo span {
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-size: .85rem;
+            font-weight: 700;
+            color: var(--gulu-dark);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .header-link:hover {
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+            border-color: var(--gulu);
+        }
+
+        /* ============ HERO SECTION ============ */
+        .hero {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: calc(100vh - 72px);
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 60px
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            text-align: left;
+            gap: 24px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-size: .95rem;
+            font-weight: 800;
+            color: #111827;
+            background: #fff;
+            border: none;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), inset 0 -3px 6px rgba(0, 0, 0, 0.04);
+            opacity: 0;
+            margin-bottom: 30px;
+        }
+
+        .badge .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3B82F6;
+            box-shadow: 0 0 10px #3B82F6;
+            animation: pulse 2s ease-in-out infinite
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: .5;
+                transform: scale(1)
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.3)
+            }
+        }
+
+        /* Split text title */
+        .hero-title {
+            color: #0056D2;
+            font-size: clamp(2.8rem, 5vw, 4.2rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.04em;
+        }
+
+        .hero-title .word {
+            display: inline-block;
+            overflow: hidden;
+            vertical-align: top;
+            margin-right: 14px;
+            padding-bottom: 10px;
+            /* Fix clipping of descenders */
+        }
+
+        .hero-title .char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(100%) rotateX(-80deg);
+            will-change: transform, opacity;
+            color: #0056D2;
+        }
+
+        /* ============ SEARCH BAR ============ */
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            opacity: 0
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            height: 80px;
+            padding: 8px 10px 8px 28px;
+            border-radius: 50px;
+            background: #fff;
+            border: 4px solid #0056D2;
+            box-shadow: 0 6px 0 #0056D2;
+            transition: all .2s cubic-bezier(.16, 1, .3, 1);
+            margin-bottom: 24px;
+        }
+
+        .search-bar:focus-within {
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #0056D2;
+        }
+
+        .search-bar .icon {
+            color: #3B82F6;
+            font-size: 32px;
+            margin-right: 14px;
+            font-weight: 600;
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: 1.25rem;
+            font-weight: 500;
+            font-family: inherit
+        }
+
+        .search-bar input::placeholder {
+            color: #9CA3AF;
+            font-weight: 500;
+        }
+
+        .search-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            height: 56px;
+            padding: 0 32px;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #fff;
+            background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%);
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.3), inset 0 -3px 6px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(37, 99, 235, 0.3);
+            transition: all .2s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .search-btn:active {
+            transform: scale(.96)
+        }
+
+        /* Autocomplete */
+        .autocomplete {
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid #fff;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: none;
+            z-index: 50
+        }
+
+        .autocomplete.show {
+            display: block;
+            animation: dropIn .4s cubic-bezier(.16, 1, .3, 1)
+        }
+
+        .ac-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 22px;
+            cursor: pointer;
+            transition: all .2s;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03)
+        }
+
+        .ac-item:hover {
+            background: var(--gulu-l)
+        }
+
+        .ac-item span {
+            font-size: .95rem;
+            font-weight: 600;
+            color: var(--text-main)
+        }
+
+        @keyframes dropIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        /* ============ CATEGORIES ============ */
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: flex-start;
+            opacity: 0;
+            max-width: 700px;
+            padding-bottom: 20px;
+        }
+
+        .cat-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 24px 8px 8px;
+            border-radius: 40px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #111827;
+            background: #fff;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all .2s cubic-bezier(.16, 1, .3, 1);
+            position: relative;
+        }
+
+        /* Motion lines */
+        .cat-pill::before,
+        .cat-pill::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 3px;
+            background: currentColor;
+            border-radius: 3px;
+            opacity: 0.6;
+            transition: transform 0.3s ease;
+        }
+
+        .cat-pill::before {
+            top: -10px;
+            left: 10px;
+            transform: rotate(-15deg);
+        }
+
+        .cat-pill::after {
+            bottom: -10px;
+            right: 10px;
+            transform: rotate(-15deg);
+        }
+
+        .cat-pill:hover::before {
+            transform: rotate(-25deg) translateX(-5px);
+        }
+
+        .cat-pill:hover::after {
+            transform: rotate(-25deg) translateX(5px);
+        }
+
+        .cat-pill:hover {
+            transform: translateY(-3px);
+        }
+
+        .cat-pill:active {
+            transform: translateY(4px) !important;
+            box-shadow: 0 0px 0 transparent !important;
+        }
+
+        .cat-pill .pill-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .cat-pill:hover .pill-icon {
+            transform: rotate(8deg) scale(1.1);
+        }
+
+        /* Tareas */
+        .cat-pill[data-cat="tareas"] {
+            border-color: #F97316;
+            box-shadow: 0 6px 0 #EA580C;
+        }
+
+        .cat-pill[data-cat="tareas"] .pill-icon {
+            background: #FFEDD5;
+            color: #EA580C;
+        }
+
+        /* Dibujos */
+        .cat-pill[data-cat="dibujos"] {
+            border-color: #A855F7;
+            box-shadow: 0 6px 0 #9333EA;
+        }
+
+        .cat-pill[data-cat="dibujos"] .pill-icon {
+            background: #F3E8FF;
+            color: #9333EA;
+        }
+
+        /* Videos - Pink Background like image */
+        .cat-pill[data-cat="videos"] {
+            border-color: #EC4899;
+            box-shadow: 0 6px 0 #DB2777;
+            background: #FCE7F3;
+        }
+
+        .cat-pill[data-cat="videos"] .pill-icon {
+            background: #FBCFE8;
+            color: #DB2777;
+        }
+
+        /* Canciones */
+        .cat-pill[data-cat="canciones"] {
+            border-color: #10B981;
+            box-shadow: 0 6px 0 #059669;
+        }
+
+        .cat-pill[data-cat="canciones"] .pill-icon {
+            background: #D1FAE5;
+            color: #059669;
+        }
+
+        /* Documentos */
+        .cat-pill[data-cat="documentos"] {
+            border-color: #3B82F6;
+            box-shadow: 0 6px 0 #2563EB;
+        }
+
+        .cat-pill[data-cat="documentos"] .pill-icon {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            color: rgba(0, 0, 0, 0.4);
+            font-size: .8rem;
+            font-weight: 700;
+            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media(max-width:1024px) {
+            .hero {
+                grid-template-columns: 1fr;
+                padding: 40px 24px;
+                text-align: center;
+            }
+
+            .hero-content {
+                align-items: center;
+                text-align: center
+            }
+
+            .bg-blur-gradient {
+                background: rgba(255, 255, 255, 0.5);
+            }
+
+            .categories {
+                justify-content: center
+            }
+
+            .hero-title .word {
+                margin: 0 8px
+            }
+        }
+
+        /* ============ MINIGAMES BUTON ============ */
+        .minigames-floating {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 99;
+        }
+
+        .minigames-floating ul {
+            position: relative;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        .minigames-floating ul li {
+            position: relative;
+            list-style: none;
+            width: 170px;
+            height: 60px;
+            transform: rotate(-30deg) skew(25deg);
+        }
+
+        .minigames-floating ul li a {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .minigames-floating ul li a span {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gulu);
+            transition: 0.5s;
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            box-shadow: -1px 1px 1px rgba(0, 0, 0, 0.1);
+        }
+
+        .minigames-floating ul li a span.content-span {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .minigames-floating ul li a span .material-symbols-outlined {
+            font-size: 26px !important;
+        }
+
+        .minigames-floating ul li a:hover span:nth-child(5) {
+            transform: translate(40px, -40px);
+            opacity: 1;
+        }
+
+        .minigames-floating ul li a:hover span:nth-child(4) {
+            transform: translate(30px, -30px);
+            opacity: 0.8;
+        }
+
+        .minigames-floating ul li a:hover span:nth-child(3) {
+            transform: translate(20px, -20px);
+            opacity: 0.6;
+        }
+
+        .minigames-floating ul li a:hover span:nth-child(2) {
+            transform: translate(10px, -10px);
+            opacity: 0.4;
+        }
+
+        .minigames-floating ul li a:hover span:nth-child(1) {
+            transform: translate(0, 0);
+            opacity: 0.2;
+        }
+
+        .minigames-floating ul li a:active span {
+            transition: 0.1s;
+            transform: translate(0, 0) !important;
+            opacity: 1 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+
+
+
+    <!-- Animated background -->
+    <div class="bg-container">
+        <img src="/static/videos/fondo.webp" alt="" class="bg-webp" aria-hidden="true" />
+    </div>
+
+    <!-- Blur/Contrast overlay to ensure readability -->
+    <div class="bg-blur-gradient"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+                <span>gulugulu</span>
+            </a>
+            <a href="/admin" class="header-link">
+                <span class="material-symbols-outlined"
+                    style="font-size:16px;font-variation-settings:'FILL' 0,'wght' 400">lock</span>
+                Maestros
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <main class="hero">
+        <div class="hero-content">
+
+
+
+            <!-- Split Text Title -->
+            <h1 class="hero-title" id="heroTitle">
+                <span class="word" data-text="¿Qué"></span>
+                <span class="word" data-text="vamos"></span>
+                <span class="word" data-text="a"></span>
+                <span class="word" data-text="buscar"></span>
+                <span class="word" data-text="hoy?"></span>
+            </h1>
+
+            <!-- Search -->
+            <form action="/results" method="GET" class="search-wrapper" id="searchWrapper">
+                <div class="search-bar" id="searchBar">
+                    <span class="material-symbols-outlined icon">search</span>
+                    <input type="text" name="q" id="searchInput" placeholder="Escribe lo que necesites..."
+                        autocomplete="off" />
+                    <button type="submit" class="search-btn" id="searchBtn">
+                        <span class="material-symbols-outlined" style="font-size:18px">arrow_forward</span>
+                        Buscar
+                    </button>
+                </div>
+                <div class="autocomplete" id="acDropdown"></div>
+            </form>
+
+            <!-- Categories -->
+            <div class="categories" id="cats">
+                <a href="/results?q=tareas" class="cat-pill" data-cat="tareas">
+                    <div class="pill-icon"><span class="material-symbols-outlined"
+                            style="font-size:14px">menu_book</span></div>
+                    Tareas
+                </a>
+                <a href="/results?q=dibujos" class="cat-pill" data-cat="dibujos">
+                    <div class="pill-icon"><span class="material-symbols-outlined" style="font-size:14px">palette</span>
+                    </div>
+                    Dibujos
+                </a>
+                <a href="/results?q=videos" class="cat-pill" data-cat="videos">
+                    <div class="pill-icon"><span class="material-symbols-outlined" style="font-size:14px">movie</span>
+                    </div>
+                    Videos
+                </a>
+                <a href="/results?q=canciones" class="cat-pill" data-cat="canciones">
+                    <div class="pill-icon"><span class="material-symbols-outlined"
+                            style="font-size:14px">music_note</span></div>
+                    Canciones
+                </a>
+                <a href="/results?q=documentos" class="cat-pill" data-cat="documentos">
+                    <div class="pill-icon"><span class="material-symbols-outlined"
+                            style="font-size:14px">description</span></div>
+                    Documentos
+                </a>
+            </div>
+        </div>
+        <!-- Empty Right Side to show video mascot -->
+        <div class="hero-mascot-space"></div>
+    </main>
+
+    <!-- Minigames floating button -->
+    <div class="minigames-floating">
+        <ul>
+            <li>
+                <a href="/minijuegos">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span class="content-span">
+                        <span class="material-symbols-outlined">sports_esports</span>
+                        Minijuegos
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="footer">🐧 Gulu busca en tu Biblioteca Escolar</div>
+
+    <script>
+        // =============================================
+        // GULUGULU ANIMATION ENGINE
+        // =============================================
+
+        const searchInput = document.getElementById('searchInput');
+        const searchForm = document.getElementById('searchWrapper');
+        const acDropdown = document.getElementById('acDropdown');
+
+        // ===== 1. SPLIT TEXT ANIMATION =====
+        function splitTextReveal() {
+            document.querySelectorAll('.hero-title .word').forEach(word => {
+                const text = word.dataset.text;
+                word.innerHTML = '';
+                text.split('').forEach(ch => {
+                    const span = document.createElement('span');
+                    span.className = 'char';
+                    span.textContent = ch === ' ' ? '\u00A0' : ch;
+                    word.appendChild(span);
+                });
+            });
+
+            gsap.to('.hero-title .char', {
+                opacity: 1,
+                y: 0,
+                rotateX: 0,
+                duration: 0.6,
+                stagger: 0.03,
+                ease: "back.out(1.5)",
+                delay: 0.8,
+            });
+        }
+
+        // ===== 3. MAGNETIC BUTTON =====
+        function initMagneticButton() {
+            const btn = document.getElementById('searchBtn');
+            const bar = document.getElementById('searchBar');
+
+            bar.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const dx = (e.clientX - cx) * 0.15;
+                const dy = (e.clientY - cy) * 0.15;
+                gsap.to(btn, { x: dx, y: dy, duration: 0.4, ease: "power3.out" });
+            });
+            bar.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1,.4)" });
+            });
+        }
+
+        // ===== 4. ENTRANCE TIMELINE =====
+        function playEntrance() {
+            const tl = gsap.timeline();
+
+            tl.fromTo('#badge', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .5, ease: "power3.out" }, 0.5)
+                .add(splitTextReveal, 0.3)
+                .fromTo('#searchWrapper', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .6, ease: "power3.out" }, 1.2)
+                .fromTo('#cats', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .5 }, 1.5)
+                .fromTo('.cat-pill', { opacity: 0, y: 10, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .4, stagger: .08, ease: "back.out(1.3)" }, 1.6);
+        }
+
+        // Autocomplete
+        let debounce;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(debounce);
+            const q = e.target.value.trim();
+            if (q.length < 2) { acDropdown.classList.remove('show'); acDropdown.innerHTML = ''; return; }
+
+            debounce = setTimeout(async () => {
+                try {
+                    const r = await fetch(`/autocomplete?q=${encodeURIComponent(q)}`);
+                    const items = await r.json();
+                    if (!items.length) { acDropdown.classList.remove('show'); return; }
+                    acDropdown.innerHTML = items.map(s =>
+                        `<div class="ac-item" onclick="pickSuggestion('${s.replace(/'/g, "\\'")}')">
+                    <span class="material-symbols-outlined" style="font-size:18px; color:var(--gulu)">description</span>
+                    <span>${s}</span>
+                </div>`
+                    ).join('');
+                    acDropdown.classList.add('show');
+                    gsap.from('.ac-item', { opacity: 0, x: -10, duration: .25, stagger: .05, ease: "power2.out" });
+                } catch (e) { acDropdown.classList.remove('show'); }
+            }, 200);
+        });
+
+        function pickSuggestion(name) {
+            searchInput.value = name.substring(0, name.lastIndexOf('.')) || name;
+            acDropdown.classList.remove('show');
+            searchForm.submit();
+        }
+
+        document.addEventListener('click', e => { if (!e.target.closest('.search-wrapper')) acDropdown.classList.remove('show'); });
+
+        // Search shake on empty
+        searchForm.addEventListener('submit', function (e) {
+            if (!searchInput.value.trim()) {
+                e.preventDefault();
+                gsap.to('#searchBar', { x: -6, duration: .08, repeat: 5, yoyo: true, ease: "power2.inOut", onComplete: () => gsap.set('#searchBar', { x: 0 }) });
+                return;
+            }
+        });
+
+
+        // ===== INIT =====
+        initMagneticButton();
+        playEntrance();
+    </script>
+</body>
+
+</html>

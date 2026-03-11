@@ -1,0 +1,40 @@
+<svg class="mascot-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Outer Glow -->
+    <circle cx="100" cy="100" r="80" fill="none" stroke="#00f2ff" stroke-width="1" stroke-dasharray="10 5" opacity="0.3">
+        <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="10s" repeatCount="indefinite" />
+    </circle>
+    
+    <!-- Main Body -->
+    <g class="mascot-floating">
+        <!-- Digital Halo -->
+        <ellipse cx="100" cy="60" rx="40" ry="10" fill="none" stroke="#00f2ff" stroke-width="2" opacity="0.6">
+            <animate attributeName="cy" values="55;65;55" dur="3s" repeatCount="indefinite" />
+        </ellipse>
+        
+        <!-- Head -->
+        <rect x="60" y="70" width="80" height="70" rx="15" fill="#1a1a2e" stroke="#00f2ff" stroke-width="3" />
+        
+        <!-- Screen Area -->
+        <rect x="70" y="80" width="60" height="50" rx="8" fill="#0d0d1a" stroke="#00f2ff" stroke-width="1" />
+        
+        <!-- Eyes (Digital) -->
+        <g class="mascot-eyes">
+            <rect id="eye-left" x="80" y="95" width="12" height="6" rx="3" fill="#00f2ff" />
+            <rect id="eye-right" x="108" y="95" width="12" height="6" rx="3" fill="#00f2ff" />
+        </g>
+        
+        <!-- Antenna -->
+        <line x1="100" y1="70" x2="100" y2="50" stroke="#00f2ff" stroke-width="3" />
+        <circle cx="100" cy="50" r="5" fill="#ff00ff">
+            <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" />
+        </circle>
+        
+        <!-- Floating Hands -->
+        <circle cx="50" cy="110" r="8" fill="#1a1a2e" stroke="#00f2ff" stroke-width="2">
+             <animate attributeName="cy" values="105;115;105" dur="2.5s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="150" cy="110" r="8" fill="#1a1a2e" stroke="#00f2ff" stroke-width="2">
+             <animate attributeName="cy" values="115;105;115" dur="2.5s" repeatCount="indefinite" />
+        </circle>
+    </g>
+</svg>

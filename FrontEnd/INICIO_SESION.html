@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inicio de Sesión Maestros</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#256af4",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "pastel-blue": "#eef4ff",
+                        "pastel-yellow": "#fff9db", 
+                        "pastel-green": "#e6fcf5",
+                        "pastel-purple": "#f3f0ff",
+                        "soft-text": "#4b5563",
+                    },
+                    fontFamily: {
+                        display: ["Plus Jakarta Sans", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "lg": "1rem",
+                        "xl": "1.5rem", 
+                        "2xl": "2rem",
+                        "3xl": "3rem",
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f5f6f8;background-image: 
+                radial-gradient(circle at 10% 20%, rgba(37, 106, 244, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 159, 64, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(75, 192, 192, 0.05) 0%, transparent 30%);
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden text-slate-900">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap px-6 py-4 lg:px-10 lg:py-6 max-w-7xl mx-auto w-full">
+<div class="flex items-center gap-3 text-slate-900">
+<div class="flex items-center justify-center size-10 bg-primary/10 rounded-full text-primary">
+<span class="material-symbols-outlined text-[28px]">search_hands_free</span>
+</div>
+<h2 class="text-slate-900 text-xl lg:text-2xl font-extrabold tracking-tight">Kids Search</h2>
+</div>
+<a class="text-sm font-bold text-slate-500 hover:text-primary transition-colors" href="#">Ayuda</a>
+</header>
+<main class="flex-1 px-4 py-6 lg:px-10 max-w-7xl mx-auto w-full flex flex-col items-center justify-center">
+<div class="w-full max-w-md">
+<div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative">
+<div class="h-2 w-full bg-gradient-to-r from-primary to-purple-500"></div>
+<div class="p-8 sm:p-10 flex flex-col gap-6">
+<div class="text-center flex flex-col items-center gap-2">
+<div class="size-14 rounded-full bg-blue-50 flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-primary text-3xl">school</span>
+</div>
+<h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Inicio de Sesión para Maestros</h1>
+</div>
+<div class="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-xl p-4 text-amber-900">
+<span class="material-symbols-outlined text-amber-600 mt-0.5 shrink-0">lock</span>
+<div class="flex flex-col">
+<span class="font-bold text-sm">Área Restringida</span>
+<span class="text-sm text-amber-800/80">Acceso exclusivo para docentes autorizados.</span>
+</div>
+</div>
+<form class="flex flex-col gap-5 mt-2" onsubmit="event.preventDefault();">
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-slate-700 ml-1" for="email">Correo electrónico</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-slate-400 group-focus-within:text-primary transition-colors text-[20px]">mail</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-3 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-primary focus:ring-primary/20 text-slate-900 font-medium placeholder:text-slate-400 transition-all sm:text-sm" id="email" placeholder="nombre@escuela.edu" required="" type="email"/>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-slate-700 ml-1" for="password">Contraseña</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-slate-400 group-focus-within:text-primary transition-colors text-[20px]">key</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-3 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-primary focus:ring-primary/20 text-slate-900 font-medium placeholder:text-slate-400 transition-all sm:text-sm" id="password" placeholder="••••••••" required="" type="password"/>
+</div>
+</div>
+<div class="flex items-center justify-between mt-1">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-4 h-4 text-primary border-slate-300 rounded focus:ring-primary/20 cursor-pointer" type="checkbox"/>
+<span class="text-sm text-slate-500 group-hover:text-slate-700 font-medium">Recordarme</span>
+</label>
+<a class="text-sm font-bold text-primary hover:text-blue-700 transition-colors" href="#">¿Olvidaste tu contraseña?</a>
+</div>
+<button class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all mt-2 text-lg" type="submit">
+<span>Entrar</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</form>
+</div>
+<div class="bg-slate-50 px-8 py-4 border-t border-slate-100 flex justify-center">
+<p class="text-xs text-slate-400 font-medium text-center">
+                            Sistema seguro de gestión educativa v2.4
+                        </p>
+</div>
+</div>
+<div class="mt-8 text-center">
+<a class="inline-flex items-center gap-2 text-slate-500 font-bold hover:text-slate-800 transition-colors py-2 px-4 rounded-full hover:bg-white/50" href="#">
+<span class="material-symbols-outlined text-lg">arrow_back</span>
+                        Volver al inicio
+                    </a>
+</div>
+</div>
+</main>
+<footer class="py-6 text-center">
+<p class="text-sm text-slate-400 font-medium">© 2024 Kids Search. Todos los derechos reservados.</p>
+</footer>
+</div>
+
+</body></html>

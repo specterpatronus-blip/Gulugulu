@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resultados - Gulugulu 🐧</title>
+    <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
+    <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
+    <script src="/static/js/gsap.min.js"></script>
+    <style>
+        /* ============ BASE ============ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --gulu: #5A9AB5;
+            --gulu-dark: #2C4A58;
+            --gulu-l: #E8F4FA;
+            --gulu-accent: #6366f1;
+            --text-main: #1A2E35;
+            --card-glass: rgba(255, 255, 255, 0.75);
+            --header-glass: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8fbff;
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24
+        }
+
+        /* ============ BACKGROUND ============ */
+        .bg-container {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            overflow: hidden;
+        }
+
+        .bg-webp {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bg-blur-gradient {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(5px);
+            pointer-events: none;
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 10px 24px;
+            backdrop-filter: blur(15px) saturate(180%);
+            background: var(--header-glass);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            justify-content: space-between
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo span {
+            font-size: 1.15rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-search {
+            flex: 1;
+            max-width: 500px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px 8px 22px;
+            border-radius: 50px;
+            background: #fff;
+            border: 3px solid #0056D2;
+            box-shadow: 0 4px 0 #0056D2;
+            transition: all .2s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .header-search:focus-within {
+            transform: translateY(2px);
+            box-shadow: 0 0px 0 #0056D2;
+        }
+
+        .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: .95rem;
+            font-weight: 600;
+            font-family: inherit
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: .95rem;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%);
+            border: none;
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.3), inset 0 -3px 6px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(37, 99, 235, 0.3);
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .back-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* ============ LAYOUT ============ */
+        .page-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 30px;
+            padding: 30px 40px;
+        }
+
+        /* Sidebar */
+        .sidebar-box {
+            background: var(--card-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid #fff;
+            border-radius: 24px;
+            padding: 24px;
+            position: sticky;
+            top: 100px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        .sidebar-box h3 {
+            font-size: .85rem;
+            font-weight: 800;
+            color: var(--gulu-dark);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            opacity: 0.6;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+            font-size: .9rem;
+            font-weight: 700
+        }
+
+        .filter-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-btn.active {
+            opacity: 1;
+            background: #fff;
+            color: var(--gulu);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--gulu-l);
+        }
+
+        /* Results area */
+        .results-header {
+            margin-bottom: 24px;
+        }
+
+        .result-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 800;
+            color: var(--gulu);
+            background: #fff;
+            border: 1px solid var(--gulu-l);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            margin-bottom: 12px
+        }
+
+        .results-title {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-main);
+        }
+
+        .results-title .query {
+            color: var(--gulu)
+        }
+
+        /* Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px
+        }
+
+        .result-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid #fff;
+            border-radius: 20px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.03);
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            background: #fff;
+            border-color: var(--gulu-l);
+            box-shadow: 0 20px 40px rgba(90, 154, 181, 0.12);
+        }
+
+        .card-preview {
+            aspect-ratio: 16/10;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .card-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .5s
+        }
+
+        .result-card:hover .card-preview img {
+            transform: scale(1.08)
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-meta {
+            font-size: .8rem;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.35);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-badge {
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: .7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* No results */
+        .no-results {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .no-results img {
+            width: 120px;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .no-results h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main)
+        }
+
+        .no-results p {
+            color: rgba(0, 0, 0, 0.4);
+            max-width: 400px;
+            font-weight: 600;
+        }
+
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 18px;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.2);
+            transition: all 0.3s;
+        }
+
+        .back-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Toast */
+        .gulu-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 24px;
+            background: #fff;
+            border-radius: 20px;
+            border: 1px solid var(--gulu-l);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            pointer-events: none;
+        }
+
+        .gulu-toast img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid var(--gulu-l);
+        }
+
+        .toast-text {
+            font-size: .95rem;
+            font-weight: 800;
+            color: var(--text-main)
+        }
+
+        .toast-sub {
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--gulu);
+        }
+
+        @media(max-width:850px) {
+            .page-content {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+
+            .sidebar-box {
+                display: none;
+            }
+
+            .results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated background -->
+    <div class="bg-container">
+        <img src="/static/videos/fondo.webp" alt="" class="bg-webp" aria-hidden="true" />
+    </div>
+    <div class="bg-blur-gradient"></div>
+
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+                <span>gulugulu</span>
+            </a>
+            <form action="/results" method="GET" class="header-search">
+                <span class="material-symbols-outlined"
+                    style="font-size:22px;color:var(--gulu);opacity:0.6">search</span>
+                <input name="q" value="{{ query }}" placeholder="Busca de nuevo..." />
+            </form>
+            <a href="/" class="back-btn">
+                <span class="material-symbols-outlined" style="font-size:18px">home</span>
+                Inicio
+            </a>
+        </div>
+    </header>
+
+    <div class="page-content">
+        <aside class="sidebar">
+            <div class="sidebar-box">
+                <h3><span class="material-symbols-outlined" style="font-size:18px">filter_list</span> Filtrar</h3>
+                <button class="filter-btn active" data-filter="all" onclick="applyFilter('all',this)">
+                    <span class="material-symbols-outlined" style="color:#f97316">grid_view</span> Todo
+                </button>
+                <button class="filter-btn" data-filter="image" onclick="applyFilter('image',this)">
+                    <span class="material-symbols-outlined" style="color:#3b82f6">image</span> Fotos
+                </button>
+                <button class="filter-btn" data-filter="video" onclick="applyFilter('video',this)">
+                    <span class="material-symbols-outlined" style="color:#a855f7">movie</span> Videos
+                </button>
+                <button class="filter-btn" data-filter="document" onclick="applyFilter('document',this)">
+                    <span class="material-symbols-outlined" style="color:#10b981">description</span> Documentos
+                </button>
+                <button class="filter-btn" data-filter="audio" onclick="applyFilter('audio',this)">
+                    <span class="material-symbols-outlined" style="color:#ec4899">music_note</span> Música
+                </button>
+            </div>
+        </aside>
+
+        <div class="results-area">
+            <div class="results-header">
+                <div class="result-badge">
+                    <img src="/static/images/gulu-icon.jpeg" alt=""
+                        style="width:16px; height:16px; border-radius:50%;" />
+                    <span id="badgeText">Buscando...</span>
+                </div>
+                <h2 class="results-title">Resultados para <span class="query">'{{ query }}'</span></h2>
+            </div>
+            <div class="results-grid" id="resultsGrid"></div>
+            <div class="no-results" id="noResults">
+                <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+                <h3>¡Ups! Gulu no encontró nada 🐧</h3>
+                <p>Prueba con otras palabras, tal vez algo más sencillo como <strong
+                        style="color:var(--gulu)">naturaleza</strong> o <strong
+                        style="color:var(--gulu)">ciencia</strong>.</p>
+                <a href="/" class="back-home">🚀 Volver al Inicio</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="gulu-toast" id="guluToast">
+        <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+        <div>
+            <div class="toast-text" id="toastText">¡Datos encontrados!</div>
+            <div class="toast-sub">Gulu encontró tesoros 📁</div>
+        </div>
+    </div>
+
+    <script>
+        const query = "{{ query }}";
+        const grid = document.getElementById('resultsGrid');
+        const badge = document.getElementById('badgeText');
+        const noResults = document.getElementById('noResults');
+        const toast = document.getElementById('guluToast');
+        let currentFilter = 'all';
+
+        const typeStyles = {
+            image: { icon: 'image', bg: 'rgba(59,130,246,0.08)', color: '#3b82f6' },
+            video: { icon: 'movie', bg: 'rgba(168,85,247,0.08)', color: '#a855f7' },
+            audio: { icon: 'music_note', bg: 'rgba(236,72,153,0.08)', color: '#ec4899' },
+            pdf: { icon: 'picture_as_pdf', bg: 'rgba(239,68,68,0.08)', color: '#ef4444' },
+            word: { icon: 'description', bg: 'rgba(59,130,246,0.08)', color: '#3b82f6' },
+            text: { icon: 'article', bg: 'rgba(148,163,184,0.08)', color: '#94a3b8' },
+            file: { icon: 'draft', bg: 'rgba(148,163,184,0.08)', color: '#94a3b8' }
+        };
+
+        function scrambleText(el, finalText) {
+            let frame = 0;
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef';
+            const interval = setInterval(() => {
+                let text = '';
+                for (let i = 0; i < finalText.length; i++) {
+                    if (frame > i * 2) text += finalText[i];
+                    else text += chars[Math.floor(Math.random() * chars.length)];
+                }
+                el.textContent = text;
+                frame++;
+                if (frame > finalText.length * 2) clearInterval(interval);
+            }, 30);
+        }
+
+        function showToast(text) {
+            document.getElementById('toastText').textContent = text;
+            gsap.timeline()
+                .to(toast, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" })
+                .to(toast, { opacity: 0, y: 30, duration: 0.3, ease: "power2.in", delay: 3 });
+        }
+
+        async function fetchResults(filter) {
+            try {
+                const r = await fetch(`/search?q=${encodeURIComponent(query)}&filter=${filter}`);
+                const data = await r.json();
+                renderResults(data);
+            } catch (e) {
+                grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:50px;">Error al buscar...</p>';
+            }
+        }
+
+        function renderResults(results) {
+            grid.innerHTML = '';
+            if (!results.length) {
+                noResults.style.display = 'flex';
+                scrambleText(badge, 'Sin resultados');
+                return;
+            }
+            noResults.style.display = 'none';
+            scrambleText(badge, `¡${results.length} resultado${results.length > 1 ? 's' : ''} encontrados!`);
+            showToast('¡Gulu encontró tesoros!');
+
+            results.forEach((item, i) => {
+                const s = typeStyles[item.type] || typeStyles.file;
+                const card = document.createElement('a');
+                card.href = `/files/${item.path}`;
+                card.target = '_blank';
+                card.className = 'result-card';
+
+                let preview;
+                if (item.type === 'image') {
+                    preview = `<div class="card-preview"><img src="/files/${item.path}" alt="${item.name}" onerror="this.parentElement.innerHTML='<span class=\\'material-symbols-outlined\\' style=\\'font-size:48px;color:${s.color}\\'>${s.icon}</span>'"/></div>`;
+                } else {
+                    preview = `<div class="card-preview" style="background:${s.bg}"><span class="material-symbols-outlined" style="font-size:48px;color:${s.color}">${s.icon}</span></div>`;
+                }
+
+                card.innerHTML = `
+                    ${preview}
+                    <div class="card-title">${item.name}</div>
+                    <div class="card-meta">
+                        <span>${item.type_label}</span>
+                        <span class="card-badge" style="background:${s.bg}; color:${s.color}">${item.ext}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            gsap.to('.result-card', { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power3.out" });
+        }
+
+        function applyFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            fetchResults(filter);
+        }
+
+        gsap.from('.header', { y: -30, opacity: 0, duration: 0.6, ease: "power3.out" });
+        gsap.from('.sidebar', { x: -30, opacity: 0, duration: 0.6, ease: "power3.out", delay: 0.3 });
+
+        if (query) fetchResults(currentFilter);
+    </script>
+</body>
+
+</html>

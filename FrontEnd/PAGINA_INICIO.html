@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Inicio de Buscador Escolar</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#256af4",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "pastel-blue": "#eef4ff",
+                        "pastel-yellow": "#fff9db",
+                        "pastel-green": "#e6fcf5",
+                        "pastel-purple": "#f3f0ff",
+                        "soft-text": "#4b5563",
+                    },
+                    fontFamily: {
+                        display: ["Plus Jakarta Sans", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem",
+                        "3xl": "3rem",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f5f6f8;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(37, 106, 244, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 159, 64, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(75, 192, 192, 0.05) 0%, transparent 30%);
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+
+<body class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden text-slate-900">
+    <div class="layout-container flex h-full grow flex-col">
+        <header
+            class="flex items-center justify-between whitespace-nowrap px-6 py-4 lg:px-10 lg:py-6 max-w-7xl mx-auto w-full">
+            <div class="flex items-center gap-3 text-slate-900">
+                <div class="flex items-center justify-center size-10 bg-primary/10 rounded-full text-primary">
+                    <span class="material-symbols-outlined text-[28px]">search_hands_free</span>
+                </div>
+                <h2 class="text-slate-900 text-xl lg:text-2xl font-extrabold tracking-tight">Buscador Escolar</h2>
+            </div>
+            <button
+                class="group flex cursor-pointer items-center justify-center rounded-xl px-5 py-2.5 bg-white shadow-sm border border-slate-100 hover:bg-slate-50 hover:border-primary/20 transition-all">
+                <span
+                    class="material-symbols-outlined text-slate-500 mr-2 group-hover:text-primary text-[20px]">login</span>
+                <span class="text-slate-700 font-bold group-hover:text-primary text-sm">Iniciar Sesión</span>
+            </button>
+        </header>
+        <main class="flex-1 px-4 py-6 lg:px-10 max-w-7xl mx-auto w-full flex flex-col justify-center">
+            <div class="@container">
+                <div
+                    class="flex flex-col-reverse gap-8 px-4 py-6 @[480px]:gap-12 @[864px]:flex-row @[864px]:items-center">
+                    <div class="flex flex-col gap-8 flex-1 @[864px]:max-w-[600px]">
+                        <div class="flex flex-col gap-3 text-left">
+                            <div
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full w-fit shadow-sm border border-slate-100 mb-2">
+                                <span class="text-xl">👋</span>
+                                <span class="text-sm font-bold text-slate-600">¡Hola, Explorador!</span>
+                            </div>
+                            <h1
+                                class="text-slate-900 text-4xl font-black leading-[1.1] tracking-tight @[480px]:text-5xl lg:text-6xl">
+                                ¿Qué vamos a buscar hoy?
+                            </h1>
+                            <h2 class="text-slate-500 text-lg font-medium leading-normal max-w-md">
+                                ¡Estoy listo para ayudarte a encontrar tus tareas, dibujos y videos!
+                            </h2>
+                        </div>
+                        <label
+                            class="group relative flex flex-col w-full shadow-lg shadow-primary/5 rounded-3xl transition-transform hover:scale-[1.01]">
+                            <div
+                                class="flex w-full items-center rounded-3xl h-16 @[480px]:h-20 bg-white border-2 border-transparent focus-within:border-primary/20 transition-all overflow-hidden p-2 pl-6">
+                                <span class="material-symbols-outlined text-slate-400 text-[28px]">search</span>
+                                <input
+                                    class="flex w-full min-w-0 flex-1 resize-none bg-transparent border-none focus:ring-0 text-slate-900 placeholder:text-slate-400 h-full px-4 text-lg font-bold leading-normal @[480px]:text-xl"
+                                    placeholder="Escribe aquí para buscar tus archivos..." value="" />
+                                <button
+                                    class="flex shrink-0 cursor-pointer items-center justify-center rounded-2xl h-full px-6 @[480px]:px-8 bg-primary hover:bg-blue-600 text-white transition-colors">
+                                    <span class="text-base font-bold tracking-wide @[480px]:text-lg">Buscar</span>
+                                </button>
+                            </div>
+                        </label>
+                        <div class="flex flex-col gap-4">
+                            <h3 class="text-slate-900 text-lg font-bold">Categorías Rápidas</h3>
+                            <div class="flex flex-wrap gap-3">
+                                <button
+                                    class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group">
+                                    <div
+                                        class="flex items-center justify-center w-10 h-10 rounded-full bg-orange-100 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                                        <span class="material-symbols-outlined">menu_book</span>
+                                    </div>
+                                    <span class="text-slate-700 font-bold group-hover:text-slate-900">Tareas</span>
+                                </button>
+                                <button
+                                    class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group">
+                                    <div
+                                        class="flex items-center justify-center w-10 h-10 rounded-full bg-purple-100 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                        <span class="material-symbols-outlined">palette</span>
+                                    </div>
+                                    <span class="text-slate-700 font-bold group-hover:text-slate-900">Dibujos</span>
+                                </button>
+                                <button
+                                    class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group">
+                                    <div
+                                        class="flex items-center justify-center w-10 h-10 rounded-full bg-pink-100 text-pink-600 group-hover:bg-pink-600 group-hover:text-white transition-colors">
+                                        <span class="material-symbols-outlined">movie</span>
+                                    </div>
+                                    <span class="text-slate-700 font-bold group-hover:text-slate-900">Películas</span>
+                                </button>
+                                <button
+                                    class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group">
+                                    <div
+                                        class="flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                        <span class="material-symbols-outlined">music_note</span>
+                                    </div>
+                                    <span class="text-slate-700 font-bold group-hover:text-slate-900">Canciones</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-center flex-1 w-full @[864px]:w-auto @[864px]:justify-end">
+                        <div class="relative w-full max-w-[400px] aspect-square @[864px]:max-w-[500px]">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-tr from-blue-100 to-purple-100 rounded-full blur-3xl opacity-60 transform scale-90">
+                            </div>
+                            <img alt="A friendly 3D robot toy mascot sitting and smiling"
+                                class="relative w-full h-full object-contain drop-shadow-2xl z-10 hover:scale-105 transition-transform duration-500 ease-in-out cursor-pointer"
+                                data-alt="A friendly 3D robot toy mascot sitting and smiling"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCc7Jbm0AUS6uu9ntshoUfgLOsPmbORSudctyXvZ-LGWfxRrq5GReQcpyilXcH9hPjkh4-dfX5oNzbr5yRxWy89nRk0kchoDjhO9kiZ2MuwT6MaJH3ApLwwyIHrGlBdu5sWDvSJE96MrjbRWnpNoalX0IkKNQsoRd6Gqp8v0pNKpSUka6iurpdWiEKBfZw67E6L1fC4eFpgYFD4_fwYODYJiGz_bh60R5pZp2_AUmokJSfC1S9mgl64KkOlx3xsfMMqryLDo4hN4hY" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto flex justify-center pb-8 pt-12">
+                <div class="flex items-center gap-2 px-6 py-3 bg-slate-200/50 rounded-full border border-slate-200/50">
+                    <span class="material-symbols-outlined text-slate-500 text-lg">folder_open</span>
+                    <span class="text-slate-600 text-sm font-bold">Buscando en: Mis Documentos</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>

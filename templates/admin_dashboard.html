@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de Control - Gulugulu 🐧</title>
+    <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
+    <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
+    <script src="/static/js/gsap.min.js"></script>
+    <style>
+        /* ============ BASE ============ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --gulu: #5A9AB5;
+            --gulu-dark: #2C4A58;
+            --gulu-l: #E8F4FA;
+            --gulu-accent: #6366f1;
+            --text-main: #1A2E35;
+            --card-glass: rgba(255, 255, 255, 0.7);
+            --header-glass: rgba(255, 255, 255, 0.75);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8fbff;
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24
+        }
+
+        /* ============ BACKGROUND ============ */
+        .bg-container {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+        }
+
+        .bg-webp {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bg-blur {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 24px;
+            backdrop-filter: blur(15px) saturate(180%);
+            background: var(--header-glass);
+            border-bottom: 1px solid #fff;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo span {
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-size: .95rem;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%);
+            border: none;
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.3), inset 0 -3px 6px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(37, 99, 235, 0.3);
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .nav-btn:active {
+            transform: scale(0.96);
+        }
+
+        .nav-btn.danger {
+            background: linear-gradient(180deg, #EF4444 0%, #DC2626 100%);
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.3), inset 0 -3px 6px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(239, 68, 68, 0.3);
+        }
+
+        .nav-btn.danger:hover {
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        /* ============ MAIN CONTENT ============ */
+        .main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .stat-label {
+            font-size: .85rem;
+            font-weight: 700;
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Sections */
+        .section-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            border: 1px solid #fff;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px 24px;
+            background: rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-header h2 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gulu-dark);
+        }
+
+        .section-body {
+            padding: 24px;
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed rgba(90, 154, 181, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .drop-zone:hover,
+        .drop-zone.drag-over {
+            border-color: var(--gulu);
+            background: var(--gulu-l);
+        }
+
+        .drop-zone .material-symbols-outlined {
+            font-size: 48px;
+            color: var(--gulu);
+            opacity: 0.5;
+            margin-bottom: 8px;
+        }
+
+        .drop-zone p {
+            font-weight: 700;
+            color: var(--gulu-dark);
+            margin-bottom: 4px;
+        }
+
+        .drop-zone span {
+            font-size: .85rem;
+            color: rgba(0, 0, 0, 0.4);
+            font-weight: 600;
+        }
+
+        .file-selected {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid var(--gulu-l);
+            font-weight: 800;
+            color: var(--gulu);
+            display: none;
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounceIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .upload-actions {
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .upload-btn {
+            padding: 14px 28px;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: #fff;
+            background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%);
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.3), inset 0 -3px 6px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(37, 99, 235, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .upload-btn:hover:not(:disabled) {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .upload-btn:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+
+        .upload-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* File List */
+        .file-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+            transition: background 0.2s;
+        }
+
+        .file-row:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .file-row:last-child {
+            border: none;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .file-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .file-details {
+            min-width: 0;
+        }
+
+        .file-name {
+            font-weight: 800;
+            color: var(--text-main);
+            font-size: .95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-meta {
+            font-size: .75rem;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.3);
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            background: rgba(0, 0, 0, 0.03);
+            color: rgba(0, 0, 0, 0.3);
+        }
+
+        .action-btn:hover {
+            background: var(--gulu-l);
+            color: var(--gulu);
+        }
+
+        .action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* ============ USER TABLE ============ */
+        .user-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .user-table th {
+            text-align: left;
+            padding: 14px 20px;
+            font-size: .8rem;
+            font-weight: 800;
+            color: rgba(0, 0, 0, 0.35);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .user-table td {
+            padding: 16px 20px;
+            font-weight: 600;
+            color: var(--text-main);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+            transition: background 0.2s;
+        }
+
+        .user-table tr:hover td {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .user-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .user-table .user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(90, 154, 181, 0.1);
+            color: var(--gulu);
+            font-size: .8rem;
+            font-weight: 800;
+        }
+
+        .empty-users {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: 700;
+        }
+
+        .empty-users .material-symbols-outlined {
+            font-size: 48px;
+            opacity: 0.3;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* ============ MODAL ============ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #fff;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: modalIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .modal-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-body label {
+            font-weight: 700;
+            color: var(--gulu-dark);
+            display: block;
+            margin-bottom: 6px;
+            font-size: .9rem;
+        }
+
+        .modal-body input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            font-family: inherit;
+            font-size: .95rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .modal-body input:focus {
+            border-color: var(--gulu);
+        }
+
+        .modal-body .hint {
+            font-size: .78rem;
+            color: rgba(0, 0, 0, 0.35);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .modal-btn {
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: .9rem;
+            transition: all 0.2s;
+        }
+
+        .modal-btn.cancel {
+            background: rgba(0, 0, 0, 0.05);
+            color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-btn.cancel:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-btn.primary {
+            color: #fff;
+            background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .modal-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        /* ============ TOAST ============ */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 600;
+            padding: 14px 24px;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: .9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            pointer-events: none;
+        }
+
+        .toast.success {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .toast.error {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main {
+                padding: 20px 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-inner {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .user-table th:nth-child(1),
+            .user-table td:nth-child(1) {
+                display: none;
+            }
+
+            .modal-card {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-container">
+        <img src="/static/videos/fondo.webp" alt="" class="bg-webp" />
+    </div>
+    <div class="bg-blur"></div>
+
+    <!-- Edit User Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><span class="material-symbols-outlined">edit</span> Editar Maestro</h3>
+                <button class="modal-close" onclick="closeEditModal()">
+                    <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editCedula" />
+                <div>
+                    <label>Cédula</label>
+                    <input type="text" id="editCedulaDisplay" disabled
+                        style="background: rgba(0,0,0,0.03); color: rgba(0,0,0,0.4);" />
+                </div>
+                <div>
+                    <label>Nombre Completo</label>
+                    <input type="text" id="editName" required />
+                </div>
+                <div>
+                    <label>Usuario</label>
+                    <input type="text" id="editUsername" required />
+                </div>
+                <div>
+                    <label>Nueva Contraseña</label>
+                    <input type="password" id="editPassword" placeholder="Dejar vacío para no cambiar" />
+                    <p class="hint">Solo rellena si deseas cambiar la contraseña</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeEditModal()">Cancelar</button>
+                <button class="modal-btn primary" id="editSaveBtn" onclick="saveEditUser()">
+                    <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">save</span>
+                    Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+                <span>gulugulu</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-btn"><span class="material-symbols-outlined">home</span> Inicio</a>
+                <a href="/logout" class="nav-btn danger"><span class="material-symbols-outlined">logout</span> Salir</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(90, 154, 181, 0.1); color:var(--gulu)"><span
+                        class="material-symbols-outlined">folder</span></div>
+                <div>
+                    <div class="stat-value" id="fileCountStat">{{ files|length }}</div>
+                    <div class="stat-label">Archivos Totales</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(99, 102, 241, 0.1); color:var(--gulu-accent)"><span
+                        class="material-symbols-outlined">cloud_upload</span></div>
+                <div>
+                    <div class="stat-value">Subir</div>
+                    <div class="stat-label">Nuevos Tesoros</div>
+                </div>
+            </div>
+            {% if role == 'admin' %}
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(99, 102, 241, 0.1); color:var(--gulu-accent)"><span
+                        class="material-symbols-outlined">group</span></div>
+                <div>
+                    <div class="stat-value" id="userCountStat">{{ users|length }}</div>
+                    <div class="stat-label">Maestros Registrados</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if error %}
+        <div
+            style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 16px; border-radius: 16px; font-weight: 700; border: 1px solid #ef4444; margin-bottom: 24px;">
+            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">error</span>
+            {{ error }}
+        </div>
+        {% endif %}
+        {% if success %}
+        <div
+            style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 16px; border-radius: 16px; font-weight: 700; border: 1px solid #10b981; margin-bottom: 24px;">
+            <span class="material-symbols-outlined"
+                style="vertical-align: middle; margin-right: 8px;">check_circle</span>
+            {{ success }}
+        </div>
+        {% endif %}
+
+        {% if role == 'admin' %}
+        <!-- Create User -->
+        <div class="section-card" id="createUserCard" style="margin-bottom: 24px;">
+            <div class="section-header">
+                <h2><span class="material-symbols-outlined">person_add</span> Crear Nuevo Maestro</h2>
+            </div>
+            <div class="section-body">
+                <form action="/admin/create_user" method="POST"
+                    style="display: flex; flex-direction: column; gap: 16px;">
+                    <div>
+                        <label for="cedula"
+                            style="font-weight: 700; color: var(--gulu-dark); display: block; margin-bottom: 8px;">Cédula</label>
+                        <input type="text" id="cedula" name="cedula" required
+                            style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-family: inherit; outline: none; transition: border 0.3s;"
+                            onfocus="this.style.borderColor='var(--gulu)'"
+                            onblur="this.style.borderColor='rgba(0,0,0,0.1)'" />
+                    </div>
+                    <div>
+                        <label for="name"
+                            style="font-weight: 700; color: var(--gulu-dark); display: block; margin-bottom: 8px;">Nombre
+                            Completo</label>
+                        <input type="text" id="name" name="name" required
+                            style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-family: inherit; outline: none; transition: border 0.3s;"
+                            onfocus="this.style.borderColor='var(--gulu)'"
+                            onblur="this.style.borderColor='rgba(0,0,0,0.1)'" />
+                    </div>
+                    <div>
+                        <label for="username"
+                            style="font-weight: 700; color: var(--gulu-dark); display: block; margin-bottom: 8px;">Usuario</label>
+                        <input type="text" id="username" name="username" required
+                            style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-family: inherit; outline: none; transition: border 0.3s;"
+                            onfocus="this.style.borderColor='var(--gulu)'"
+                            onblur="this.style.borderColor='rgba(0,0,0,0.1)'" />
+                    </div>
+                    <div>
+                        <label for="password"
+                            style="font-weight: 700; color: var(--gulu-dark); display: block; margin-bottom: 8px;">Contraseña</label>
+                        <input type="password" id="password" name="password" required
+                            style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-family: inherit; outline: none; transition: border 0.3s;"
+                            onfocus="this.style.borderColor='var(--gulu)'"
+                            onblur="this.style.borderColor='rgba(0,0,0,0.1)'" />
+                    </div>
+                    <button type="submit" class="upload-btn" style="align-self: flex-start; margin-top: 8px;">
+                        <span class="material-symbols-outlined">person_add</span>
+                        Crear Maestro
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- User Management Table -->
+        <div class="section-card" id="userManagementCard" style="margin-bottom: 24px;">
+            <div class="section-header">
+                <h2><span class="material-symbols-outlined">manage_accounts</span> Gestión de Maestros</h2>
+                <span style="font-weight:800; color:var(--gulu); opacity:0.6; font-size:.9rem;">{{ users|length }}
+                    maestros</span>
+            </div>
+            <div class="section-body" style="padding: 0;">
+                {% if users|length > 0 %}
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre</th>
+                            <th>Usuario</th>
+                            <th style="text-align:right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        {% for user in users %}
+                        <tr class="user-row" data-cedula="{{ user.cedula }}" data-name="{{ user.name }}"
+                            data-username="{{ user.username }}">
+                            <td><span class="user-badge"><span class="material-symbols-outlined"
+                                        style="font-size:14px;">badge</span> {{ user.cedula }}</span></td>
+                            <td>{{ user.name }}</td>
+                            <td style="color:var(--gulu); font-weight:800;">@{{ user.username }}</td>
+                            <td style="text-align:right;">
+                                <div class="file-actions" style="justify-content:flex-end;">
+                                    <button onclick="openEditModal(this.closest('tr'))" class="action-btn"
+                                        title="Editar">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button onclick="deleteUser(this.closest('tr'))" class="action-btn delete"
+                                        title="Eliminar">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-users">
+                    <span class="material-symbols-outlined">person_off</span>
+                    <p>No hay maestros registrados aún</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Upload -->
+        <div class="section-card" id="uploadCard">
+            <div class="section-header">
+                <h2><span class="material-symbols-outlined">upload_file</span> Subir Archivo</h2>
+            </div>
+            <div class="section-body">
+                <form id="uploadForm">
+                    <div class="drop-zone" id="dropZone">
+                        <span class="material-symbols-outlined">add_circle</span>
+                        <p>Haz clic o arrastra un archivo aquí</p>
+                        <span>Gulu lo guardará en la biblioteca</span>
+                        <input type="file" id="fileInput" name="file" hidden />
+                    </div>
+                    <div class="file-selected" id="fileSelected"></div>
+                    <div class="upload-actions">
+                        <button type="submit" class="upload-btn" id="uploadBtn" disabled>
+                            <span class="material-symbols-outlined">cloud_upload</span>
+                            Subir a Gulugulu
+                        </button>
+                        <span id="uploadStatus" style="font-weight:700; font-size:.85rem;"></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- List -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2><span class="material-symbols-outlined">library_books</span> Biblioteca Escolar</h2>
+                <span style="font-weight:800; color:var(--gulu); opacity:0.6; font-size:.9rem;">{{ files|length }}
+                    ítems</span>
+            </div>
+            <div class="file-list" id="fileList">
+                {% for file in files %}
+                <div class="file-row" id="file-{{ loop.index }}">
+                    <div class="file-info">
+                        {% set icon = 'draft' %}
+                        {% set color = '#94a3b8' %}
+                        {% if file.type == 'image' %}{% set icon = 'image' %}{% set color = '#3b82f6' %}
+                        {% elif file.type == 'video' %}{% set icon = 'movie' %}{% set color = '#a855f7' %}
+                        {% elif file.type == 'audio' %}{% set icon = 'music_note' %}{% set color = '#ec4899' %}
+                        {% elif file.type == 'pdf' %}{% set icon = 'picture_as_pdf' %}{% set color = '#ef4444' %}
+                        {% endif %}
+                        <div class="file-icon" style="background:rgba(0,0,0,0.03); color:{{ color }}">
+                            <span class="material-symbols-outlined">{{ icon }}</span>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name">{{ file.name }}</div>
+                            <div class="file-meta">{{ file.size_display }} • {{ file.ext|upper }}</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <a href="/files/{{ file.path }}" target="_blank" class="action-btn">
+                            <span class="material-symbols-outlined">open_in_new</span>
+                        </a>
+                        <button onclick="deleteFile('{{ file.name }}', this)" class="action-btn delete">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Animations
+        gsap.from('.header', { y: -30, opacity: 0, duration: 0.6, ease: "power3.out" });
+        gsap.from('.stat-card', { y: 20, opacity: 0, duration: 0.5, stagger: 0.12, ease: "power3.out", delay: 0.3 });
+        gsap.from('.section-card', { y: 30, opacity: 0, duration: 0.7, stagger: 0.15, ease: "power3.out", delay: 0.5 });
+
+        // Logic
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileSelected = document.getElementById('fileSelected');
+        const status = document.getElementById('uploadStatus');
+
+        dropZone.onclick = () => fileInput.click();
+
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); };
+        dropZone.ondragleave = () => dropZone.classList.remove('drag-over');
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileDisplay();
+            }
+        };
+
+        fileInput.onchange = updateFileDisplay;
+
+        function updateFileDisplay() {
+            if (fileInput.files.length) {
+                fileSelected.textContent = `📎 ${fileInput.files[0].name}`;
+                fileSelected.style.display = 'block';
+                uploadBtn.disabled = false;
+                gsap.from(fileSelected, { scale: 0.9, opacity: 0, duration: 0.3 });
+            }
+        }
+
+        document.getElementById('uploadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const fd = new FormData();
+            fd.append('file', fileInput.files[0]);
+
+            uploadBtn.disabled = true;
+            status.textContent = 'Enviando...';
+            status.style.color = 'var(--gulu)';
+
+            try {
+                const r = await fetch('/admin/upload', { method: 'POST', body: fd });
+                const d = await r.json();
+                if (d.success) {
+                    status.textContent = '¡Listo! Guardado correctamente.';
+                    status.style.color = '#10b981';
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    status.textContent = d.error || 'Error al subir.';
+                    status.style.color = '#ef4444';
+                    uploadBtn.disabled = false;
+                }
+            } catch (e) {
+                status.textContent = 'Error de red.';
+                status.style.color = '#ef4444';
+                uploadBtn.disabled = false;
+            }
+        };
+
+        async function deleteFile(name, btn) {
+            if (!confirm(`¿Seguro que quieres borrar "${name}"?`)) return;
+            const row = btn.closest('.file-row');
+            gsap.to(row, { opacity: 0.4, filter: 'grayscale(1)' });
+
+            const fd = new FormData();
+            fd.append('filename', name);
+            try {
+                const r = await fetch('/admin/delete', { method: 'POST', body: fd });
+                const d = await r.json();
+                if (d.success) {
+                    gsap.to(row, { height: 0, opacity: 0, margin: 0, padding: 0, duration: 0.4, ease: "power2.in", onComplete: () => row.remove() });
+                } else {
+                    alert('Error: ' + d.error);
+                    gsap.to(row, { opacity: 1, filter: 'none' });
+                }
+            } catch (e) {
+                alert('Error de red');
+                gsap.to(row, { opacity: 1, filter: 'none' });
+            }
+        }
+
+        // ============ USER MANAGEMENT ============
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span class="material-symbols-outlined" style="font-size:18px;">${type === 'success' ? 'check_circle' : 'error'}</span> ${message}`;
+            document.body.appendChild(toast);
+            gsap.fromTo(toast,
+                { opacity: 0, y: 30, scale: 0.9 },
+                { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.7)" }
+            );
+            setTimeout(() => {
+                gsap.to(toast, { opacity: 0, y: -20, duration: 0.3, onComplete: () => toast.remove() });
+            }, 3000);
+        }
+
+        function openEditModal(row) {
+            const cedula = row.dataset.cedula;
+            const name = row.dataset.name;
+            const username = row.dataset.username;
+
+            document.getElementById('editCedula').value = cedula;
+            document.getElementById('editCedulaDisplay').value = cedula;
+            document.getElementById('editName').value = name;
+            document.getElementById('editUsername').value = username;
+            document.getElementById('editPassword').value = '';
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        // Close modal on overlay click
+        document.getElementById('editModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeEditModal();
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeEditModal();
+        });
+
+        async function saveEditUser() {
+            const cedula = document.getElementById('editCedula').value;
+            const name = document.getElementById('editName').value.trim();
+            const username = document.getElementById('editUsername').value.trim();
+            const password = document.getElementById('editPassword').value;
+
+            if (!name || !username) {
+                showToast('Nombre y usuario son obligatorios', 'error');
+                return;
+            }
+
+            const saveBtn = document.getElementById('editSaveBtn');
+            saveBtn.disabled = true;
+            saveBtn.style.opacity = '0.5';
+
+            const fd = new FormData();
+            fd.append('cedula', cedula);
+            fd.append('name', name);
+            fd.append('username', username);
+            if (password) fd.append('password', password);
+
+            try {
+                const r = await fetch('/admin/update_user', { method: 'POST', body: fd });
+                const d = await r.json();
+                if (d.success) {
+                    // Update the row in the table
+                    const row = document.querySelector(`tr[data-cedula="${cedula}"]`);
+                    if (row) {
+                        row.dataset.name = name;
+                        row.dataset.username = username;
+                        row.cells[1].textContent = name;
+                        row.cells[2].textContent = `@${username}`;
+                        gsap.fromTo(row, { background: 'rgba(16, 185, 129, 0.15)' }, { background: 'transparent', duration: 1.5 });
+                    }
+                    closeEditModal();
+                    showToast('Usuario actualizado correctamente');
+                } else {
+                    showToast(d.error || 'Error al actualizar', 'error');
+                }
+            } catch (e) {
+                showToast('Error de red', 'error');
+            }
+
+            saveBtn.disabled = false;
+            saveBtn.style.opacity = '1';
+        }
+
+        async function deleteUser(row) {
+            const cedula = row.dataset.cedula;
+            const name = row.dataset.name;
+            if (!confirm(`¿Seguro que quieres eliminar al maestro "${name}" (${cedula})?`)) return;
+
+            gsap.to(row, { opacity: 0.4, filter: 'grayscale(1)' });
+
+            const fd = new FormData();
+            fd.append('cedula', cedula);
+
+            try {
+                const r = await fetch('/admin/delete_user', { method: 'POST', body: fd });
+                const d = await r.json();
+                if (d.success) {
+                    gsap.to(row, {
+                        height: 0, opacity: 0, margin: 0, padding: 0,
+                        duration: 0.4, ease: "power2.in",
+                        onComplete: () => {
+                            row.remove();
+                            // Update counter
+                            const countEl = document.getElementById('userCountStat');
+                            if (countEl) countEl.textContent = document.querySelectorAll('.user-row').length;
+                        }
+                    });
+                    showToast('Usuario eliminado correctamente');
+                } else {
+                    showToast(d.error || 'Error al eliminar', 'error');
+                    gsap.to(row, { opacity: 1, filter: 'none' });
+                }
+            } catch (e) {
+                showToast('Error de red', 'error');
+                gsap.to(row, { opacity: 1, filter: 'none' });
+            }
+        }
+    </script>
+</body>
+
+</html>

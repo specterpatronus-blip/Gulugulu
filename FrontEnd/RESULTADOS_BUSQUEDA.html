@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Resultados de Búsqueda Escolar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#256af4",
+                        "primary-content": "#ffffff",
+                        "primary-light": "#e9effe",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1c2433",
+                        "text-main": "#111318",
+                        "text-sub": "#637588",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem", 
+                        "lg": "1.5rem", 
+                        "xl": "2rem", 
+                        "2xl": "2.5rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(37, 106, 244, 0.1)',
+                        'hover': '0 10px 25px -5px rgba(37, 106, 244, 0.15)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 1,
+            'wght' 600,
+            'GRAD' 0,
+            'opsz' 24
+        }::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 10px;
+            border: 3px solid #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen flex flex-col antialiased text-text-main transition-colors duration-200">
+<header class="sticky top-0 z-50 w-full bg-surface-light/90 dark:bg-surface-dark/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 px-6 py-4">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3 self-start md:self-auto w-full md:w-auto">
+<div class="size-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/30">
+<span class="material-symbols-outlined text-2xl">folder_open</span>
+</div>
+<h1 class="text-xl md:text-2xl font-extrabold tracking-tight text-text-main dark:text-white">
+                    Buscador de Archivos
+                </h1>
+</div>
+</div>
+</header>
+<main class="flex-grow flex flex-col md:flex-row max-w-7xl mx-auto w-full p-6 gap-8">
+<aside class="w-full md:w-64 flex-shrink-0 flex flex-col gap-8">
+<button class="group flex items-center gap-3 bg-surface-light dark:bg-surface-dark p-1 pr-6 rounded-full shadow-soft hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 dark:border-gray-800">
+<div class="bg-primary-light dark:bg-primary/30 text-primary dark:text-white size-12 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<span class="font-bold text-lg text-text-main dark:text-white">Atrás</span>
+</button>
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-2xl shadow-soft border border-gray-100 dark:border-gray-800">
+<h3 class="font-bold text-lg mb-4 text-text-main dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">filter_alt</span>
+                    ¿Qué buscas?
+                </h3>
+<div class="flex flex-col gap-3">
+<label class="cursor-pointer group">
+<input checked="" class="peer sr-only" name="file-type" type="radio"/>
+<div class="flex items-center gap-3 p-3 rounded-xl border-2 border-transparent bg-background-light dark:bg-background-dark peer-checked:border-primary peer-checked:bg-primary/5 transition-all group-hover:bg-gray-100 dark:group-hover:bg-gray-800">
+<div class="size-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
+<span class="material-symbols-outlined">grid_view</span>
+</div>
+<span class="font-bold text-gray-700 dark:text-gray-200">Todo</span>
+</div>
+</label>
+<label class="cursor-pointer group">
+<input class="peer sr-only" name="file-type" type="radio"/>
+<div class="flex items-center gap-3 p-3 rounded-xl border-2 border-transparent bg-background-light dark:bg-background-dark peer-checked:border-primary peer-checked:bg-primary/5 transition-all group-hover:bg-gray-100 dark:group-hover:bg-gray-800">
+<div class="size-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+<span class="material-symbols-outlined">image</span>
+</div>
+<span class="font-bold text-gray-700 dark:text-gray-200">Fotos</span>
+</div>
+</label>
+<label class="cursor-pointer group">
+<input class="peer sr-only" name="file-type" type="radio"/>
+<div class="flex items-center gap-3 p-3 rounded-xl border-2 border-transparent bg-background-light dark:bg-background-dark peer-checked:border-primary peer-checked:bg-primary/5 transition-all group-hover:bg-gray-100 dark:group-hover:bg-gray-800">
+<div class="size-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+<span class="material-symbols-outlined">movie</span>
+</div>
+<span class="font-bold text-gray-700 dark:text-gray-200">Videos</span>
+</div>
+</label>
+<label class="cursor-pointer group">
+<input class="peer sr-only" name="file-type" type="radio"/>
+<div class="flex items-center gap-3 p-3 rounded-xl border-2 border-transparent bg-background-light dark:bg-background-dark peer-checked:border-primary peer-checked:bg-primary/5 transition-all group-hover:bg-gray-100 dark:group-hover:bg-gray-800">
+<div class="size-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
+<span class="material-symbols-outlined">description</span>
+</div>
+<span class="font-bold text-gray-700 dark:text-gray-200">Cuentos</span>
+</div>
+</label>
+</div>
+</div>
+</aside>
+<div class="flex-grow flex flex-col">
+<div class="mb-8">
+<div class="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full font-bold text-sm mb-3">
+<span class="material-symbols-outlined text-lg">search</span>
+                    Encontramos 12 cosas
+                </div>
+<h2 class="text-3xl md:text-4xl font-extrabold text-text-main dark:text-white leading-tight">
+                    ¡Mira lo que encontramos de <span class="text-primary underline decoration-wavy decoration-2 underline-offset-4">'Espacio'</span>!
+                </h2>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+<div class="group relative bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 border-transparent hover:border-primary/20">
+<div class="aspect-[4/3] w-full rounded-xl overflow-hidden bg-gray-100 relative mb-4">
+<img alt="Space galaxy background with stars and nebula" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Space galaxy background with stars and nebula" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAirfbLmUzLU9RB-ncb2nFI4t66Q1hebb0iAf7Ij5uNLlLOzo2K5B_oOkA_dQnXrUI5tBoKiuenZlSVtSsjf-QO3eznhxs4uG5M_-EgSW2EcqI1FLfQqY4tEs4N5zQyfFIZPFwy3n1bze87BMzdpYd_fWM6dVhFYKJ-4Cwd4ml2_Y0KIoqHdolTAHjHUjBD_Rd951-C8OWrDsp2eAKBlvL0CDmb1CU8YgOK9-c5aDt3pzf4Q9BKiMmMteMcC_UXBPY75s9n7MiznDU"/>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-black/50 p-1.5 rounded-lg backdrop-blur-sm text-blue-600">
+<span class="material-symbols-outlined block">image</span>
+</div>
+</div>
+<div class="px-2">
+<h3 class="text-xl font-bold text-text-main dark:text-white mb-1 group-hover:text-primary transition-colors">Galaxia_Foto.jpg</h3>
+<p class="text-text-sub text-sm font-medium">Foto • 2MB</p>
+</div>
+</div>
+<div class="group relative bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 border-transparent hover:border-primary/20">
+<div class="aspect-[4/3] w-full rounded-xl overflow-hidden bg-blue-50 dark:bg-blue-900/20 relative mb-4 flex items-center justify-center">
+<div class="flex flex-col items-center gap-2 text-blue-500 transform group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-7xl drop-shadow-sm">description</span>
+<span class="font-bold text-sm bg-blue-100 dark:bg-blue-800 px-3 py-1 rounded-full">DOCX</span>
+</div>
+</div>
+<div class="px-2">
+<h3 class="text-xl font-bold text-text-main dark:text-white mb-1 group-hover:text-primary transition-colors">Marte_Reporte.docx</h3>
+<p class="text-text-sub text-sm font-medium">Cuento • 15KB</p>
+</div>
+</div>
+<div class="group relative bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 border-transparent hover:border-primary/20">
+<div class="aspect-[4/3] w-full rounded-xl overflow-hidden bg-gray-100 relative mb-4 group">
+<img alt="Astronaut floating in space suit illustration" class="w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-110" data-alt="Astronaut floating in space suit illustration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBj2wdffvHNNkz2G-KvWNiGAcmqhtsEKkDBaBrntqWa-izqZSA91j2RbTwOaaH2eNC-pea_TRj4aiDoWimUjfZkn9F84tkagKLj5ZU9V0DBgp84VHLF1YvPT-3Ey5VGnVeukpVFcBm7Lo_cD4-C_J0icnu-1pXShTmw5jN6KMCzTBqfCzc11QyB3rA47hSXZkU-3AjpGvIJI0SRyA4PpVo3x9JW6-Kf-5OtWy8kgWRgoGT2EMp8-AnYUQlUMUQ6poCyorSaq31utDo"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+<div class="size-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg text-primary pl-1 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-4xl">play_arrow</span>
+</div>
+</div>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-black/50 p-1.5 rounded-lg backdrop-blur-sm text-purple-600">
+<span class="material-symbols-outlined block">movie</span>
+</div>
+</div>
+<div class="px-2">
+<h3 class="text-xl font-bold text-text-main dark:text-white mb-1 group-hover:text-primary transition-colors">Astronauta_Clip.mp4</h3>
+<p class="text-text-sub text-sm font-medium">Video • 120MB</p>
+</div>
+</div>
+<div class="group relative bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 border-transparent hover:border-primary/20">
+<div class="aspect-[4/3] w-full rounded-xl overflow-hidden bg-gray-100 relative mb-4">
+<img alt="Rocket launch with smoke and fire" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Rocket launch with smoke and fire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDY_qQCN9FDgrqUUkGhsOyCAqmzHWgifO86ypvaeNAfXKlrAWn0Wq4iuRJofirRI3gtN9tszg-1feiSnOgXMGBcsoqEt4TjKZVdRVcGEMvN5uVrKF9Q1ad33673swiakJ_q3Z5zm-NyMqJQzdf6L_I8B_33R0ncIU_YfCGMoOmfGQ-QUTctzUGBSIu38A3oUw5bjSSZSNUv36VsbZRdjo0sKhvwTF9-_uj_keLiCF2Ts3SUDX646ys5OFiVjSz2iMReoWW0-O8mS_Y"/>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-black/50 p-1.5 rounded-lg backdrop-blur-sm text-blue-600">
+<span class="material-symbols-outlined block">image</span>
+</div>
+</div>
+<div class="px-2">
+<h3 class="text-xl font-bold text-text-main dark:text-white mb-1 group-hover:text-primary transition-colors">Lanzamiento_Cohete.png</h3>
+<p class="text-text-sub text-sm font-medium">Foto • 3MB</p>
+</div>
+</div>
+<div class="group relative bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 border-transparent hover:border-primary/20">
+<div class="aspect-[4/3] w-full rounded-xl overflow-hidden bg-green-50 dark:bg-green-900/20 relative mb-4 flex items-center justify-center">
+<div class="flex flex-col items-center gap-2 text-green-600 transform group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-7xl drop-shadow-sm">picture_as_pdf</span>
+<span class="font-bold text-sm bg-green-100 dark:bg-green-800 px-3 py-1 rounded-full">PDF</span>
+</div>
+</div>
+<div class="px-2">
+<h3 class="text-xl font-bold text-text-main dark:text-white mb-1 group-hover:text-primary transition-colors">Amigos_Alienígenas.pdf</h3>
+<p class="text-text-sub text-sm font-medium">Cuento • 500KB</p>
+</div>
+</div>
+<div class="group relative bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 border-transparent hover:border-primary/20">
+<div class="aspect-[4/3] w-full rounded-xl overflow-hidden bg-gradient-to-br from-purple-400 to-primary relative mb-4 flex items-center justify-center">
+<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+<div class="flex flex-col items-center gap-2 text-white transform group-hover:scale-110 transition-transform z-10">
+<span class="material-symbols-outlined text-7xl drop-shadow-md">headphones</span>
+<span class="font-bold text-sm bg-white/20 px-3 py-1 rounded-full backdrop-blur-md">MP3</span>
+</div>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-black/50 p-1.5 rounded-lg backdrop-blur-sm text-primary">
+<span class="material-symbols-outlined block">music_note</span>
+</div>
+</div>
+<div class="px-2">
+<h3 class="text-xl font-bold text-text-main dark:text-white mb-1 group-hover:text-primary transition-colors">Sonidos_Espaciales.mp3</h3>
+<p class="text-text-sub text-sm font-medium">Música • 4MB</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+</body></html>
