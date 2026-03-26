@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_take_screenshot"
+    ]
+  },
+  "allow": [
+    "mpc__playwright"
+  ],
+  "deny": [],
+  "hooks": {
+    "Notification": [
+      {
+        "command": "powershell -WindowStyle Hidden -Command \"Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('Claude necesita tu atención: ' + $env:CLAUDE_NOTIFICATION_TYPE)\"",
+        "matcher": "*"
+      }
+    ],
+    "Stop": [
+      {
+        "command": "powershell -WindowStyle Hidden -Command \"Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('Claude ha terminado su tarea.')\"",
+        "matcher": "*"
+      }
+    ]
+  }
+}
+

@@ -159,8 +159,9 @@
         /* Stats */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
+            margin-bottom: 32px;
         }
 
         .stat-card {
@@ -200,6 +201,261 @@
             font-size: .85rem;
             font-weight: 700;
             color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .dashboard-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            border: 1px solid #fff;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+        }
+
+        .dashboard-card-header {
+            padding: 20px 24px;
+            background: rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dashboard-card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--gulu-dark);
+        }
+
+        .dashboard-card-body {
+            padding: 24px;
+        }
+
+        /* File Type Stats */
+        .file-type-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .file-type-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .file-type-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-type-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-type-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .file-type-count {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--gulu-dark);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .file-type-bar {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .file-type-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .file-type-bar-fill.pdf { background: #ef4444; }
+        .file-type-bar-fill.image { background: #3b82f6; }
+        .file-type-bar-fill.video { background: #a855f7; }
+        .file-type-bar-fill.audio { background: #ec4899; }
+        .file-type-bar-fill.document { background: #94a3b8; }
+
+        /* Recent Files */
+        .recent-files-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .recent-file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+
+        .recent-file-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .recent-file-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .recent-file-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .recent-file-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .recent-file-size {
+            font-size: 0.8rem;
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: var(--gulu);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--gulu-dark);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-btn.secondary {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--gulu-accent);
+        }
+
+        .quick-action-btn.secondary:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--gulu) 0%, var(--gulu-dark) 100%);
+            border-radius: 24px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .welcome-banner h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .welcome-banner p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .welcome-stats {
+            display: flex;
+            gap: 32px;
+            margin-top: 24px;
+        }
+
+        .welcome-stat {
+            text-align: center;
+        }
+
+        .welcome-stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .welcome-stat-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .welcome-stats {
+                gap: 16px;
+            }
         }
 
         /* Sections */
@@ -741,22 +997,176 @@
     </header>
 
     <main class="main">
-        <!-- Stats -->
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <h1>Bienvenido, {{ session.get('name', 'Maestro') }} 🐧</h1>
+            <p>Panel de control de la Biblioteca Escolar</p>
+            <div class="welcome-stats">
+                <div class="welcome-stat">
+                    <div class="welcome-stat-value">{{ stats.total_files }}</div>
+                    <div class="welcome-stat-label">Archivos</div>
+                </div>
+                <div class="welcome-stat">
+                    <div class="welcome-stat-value">{{ stats.total_size }}</div>
+                    <div class="welcome-stat-label">Almacenamiento</div>
+                </div>
+                {% if role == 'admin' %}
+                <div class="welcome-stat">
+                    <div class="welcome-stat-value">{{ stats.total_users }}</div>
+                    <div class="welcome-stat-label">Maestros</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions" style="margin-bottom: 32px;">
+            <button class="quick-action-btn" onclick="document.getElementById('dropZone').click()">
+                <span class="material-symbols-outlined">cloud_upload</span>
+                Subir Archivo
+            </button>
+            {% if role == 'admin' %}
+            <button class="quick-action-btn secondary" onclick="document.getElementById('createUserCard').scrollIntoView({behavior: 'smooth'})">
+                <span class="material-symbols-outlined">person_add</span>
+                Nuevo Maestro
+            </button>
+            {% endif %}
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Files by Type -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <span class="material-symbols-outlined" style="color: var(--gulu);">pie_chart</span>
+                    <h3>Archivos por Tipo</h3>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="file-type-list">
+                        <div class="file-type-item">
+                            <div class="file-type-info">
+                                <div class="file-type-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                                    <span class="material-symbols-outlined">picture_as_pdf</span>
+                                </div>
+                                <span class="file-type-name">PDFs</span>
+                            </div>
+                            <span class="file-type-count">{{ stats.files_by_type.pdf }}</span>
+                        </div>
+                        <div class="file-type-bar">
+                            <div class="file-type-bar-fill pdf" style="width: {% if stats.total_files > 0 %}{{ (stats.files_by_type.pdf / stats.total_files * 100)|round }}%{% else %}0%{% endif %};"></div>
+                        </div>
+
+                        <div class="file-type-item">
+                            <div class="file-type-info">
+                                <div class="file-type-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                                    <span class="material-symbols-outlined">image</span>
+                                </div>
+                                <span class="file-type-name">Imágenes</span>
+                            </div>
+                            <span class="file-type-count">{{ stats.files_by_type.image }}</span>
+                        </div>
+                        <div class="file-type-bar">
+                            <div class="file-type-bar-fill image" style="width: {% if stats.total_files > 0 %}{{ (stats.files_by_type.image / stats.total_files * 100)|round }}%{% else %}0%{% endif %};"></div>
+                        </div>
+
+                        <div class="file-type-item">
+                            <div class="file-type-info">
+                                <div class="file-type-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
+                                    <span class="material-symbols-outlined">movie</span>
+                                </div>
+                                <span class="file-type-name">Videos</span>
+                            </div>
+                            <span class="file-type-count">{{ stats.files_by_type.video }}</span>
+                        </div>
+                        <div class="file-type-bar">
+                            <div class="file-type-bar-fill video" style="width: {% if stats.total_files > 0 %}{{ (stats.files_by_type.video / stats.total_files * 100)|round }}%{% else %}0%{% endif %};"></div>
+                        </div>
+
+                        <div class="file-type-item">
+                            <div class="file-type-info">
+                                <div class="file-type-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899;">
+                                    <span class="material-symbols-outlined">music_note</span>
+                                </div>
+                                <span class="file-type-name">Audio</span>
+                            </div>
+                            <span class="file-type-count">{{ stats.files_by_type.audio }}</span>
+                        </div>
+                        <div class="file-type-bar">
+                            <div class="file-type-bar-fill audio" style="width: {% if stats.total_files > 0 %}{{ (stats.files_by_type.audio / stats.total_files * 100)|round }}%{% else %}0%{% endif %};"></div>
+                        </div>
+
+                        <div class="file-type-item">
+                            <div class="file-type-info">
+                                <div class="file-type-icon" style="background: rgba(148, 163, 184, 0.1); color: #94a3b8;">
+                                    <span class="material-symbols-outlined">description</span>
+                                </div>
+                                <span class="file-type-name">Documentos</span>
+                            </div>
+                            <span class="file-type-count">{{ stats.files_by_type.document }}</span>
+                        </div>
+                        <div class="file-type-bar">
+                            <div class="file-type-bar-fill document" style="width: {% if stats.total_files > 0 %}{{ (stats.files_by_type.document / stats.total_files * 100)|round }}%{% else %}0%{% endif %};"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Files -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <span class="material-symbols-outlined" style="color: var(--gulu);">history</span>
+                    <h3>Archivos Recientes</h3>
+                </div>
+                <div class="dashboard-card-body">
+                    {% if stats.recent_files %}
+                    <div class="recent-files-list">
+                        {% for file in stats.recent_files %}
+                        <a href="/files/{{ file.name }}" target="_blank" class="recent-file-item">
+                            {% set icon = 'draft' %}
+                            {% set color = '#94a3b8' %}
+                            {% set bg = 'rgba(148, 163, 184, 0.1)' %}
+                            {% if file.type == 'image' %}{% set icon = 'image' %}{% set color = '#3b82f6' %}{% set bg = 'rgba(59, 130, 246, 0.1)' %}
+                            {% elif file.type == 'video' %}{% set icon = 'movie' %}{% set color = '#a855f7' %}{% set bg = 'rgba(168, 85, 247, 0.1)' %}
+                            {% elif file.type == 'audio' %}{% set icon = 'music_note' %}{% set color = '#ec4899' %}{% set bg = 'rgba(236, 72, 153, 0.1)' %}
+                            {% elif file.type == 'pdf' %}{% set icon = 'picture_as_pdf' %}{% set color = '#ef4444' %}{% set bg = 'rgba(239, 68, 68, 0.1)' %}
+                            {% endif %}
+                            <div class="recent-file-icon" style="background: {{ bg }}; color: {{ color }};">
+                                <span class="material-symbols-outlined">{{ icon }}</span>
+                            </div>
+                            <div class="recent-file-info">
+                                <div class="recent-file-name">{{ file.name }}</div>
+                                <div class="recent-file-size">{{ (file.size / 1024)|round|int }} KB</div>
+                            </div>
+                            <span class="material-symbols-outlined" style="color: rgba(0,0,0,0.3);">open_in_new</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div style="text-align: center; padding: 32px; color: rgba(0,0,0,0.4);">
+                        <span class="material-symbols-outlined" style="font-size: 48px; margin-bottom: 12px;">folder_open</span>
+                        <p>No hay archivos subidos</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon" style="background:rgba(90, 154, 181, 0.1); color:var(--gulu)"><span
                         class="material-symbols-outlined">folder</span></div>
                 <div>
-                    <div class="stat-value" id="fileCountStat">{{ files|length }}</div>
+                    <div class="stat-value" id="fileCountStat">{{ stats.total_files }}</div>
                     <div class="stat-label">Archivos Totales</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon" style="background:rgba(99, 102, 241, 0.1); color:var(--gulu-accent)"><span
-                        class="material-symbols-outlined">cloud_upload</span></div>
+                <div class="stat-icon" style="background:rgba(16, 185, 129, 0.1); color:#10b981"><span
+                        class="material-symbols-outlined">storage</span></div>
                 <div>
-                    <div class="stat-value">Subir</div>
-                    <div class="stat-label">Nuevos Tesoros</div>
+                    <div class="stat-value">{{ stats.total_size }}</div>
+                    <div class="stat-label">Almacenamiento Usado</div>
                 </div>
             </div>
             {% if role == 'admin' %}
@@ -764,8 +1174,16 @@
                 <div class="stat-icon" style="background:rgba(99, 102, 241, 0.1); color:var(--gulu-accent)"><span
                         class="material-symbols-outlined">group</span></div>
                 <div>
-                    <div class="stat-value" id="userCountStat">{{ users|length }}</div>
+                    <div class="stat-value" id="userCountStat">{{ stats.total_users }}</div>
                     <div class="stat-label">Maestros Registrados</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(251, 191, 36, 0.1); color:#fbbf24"><span
+                        class="material-symbols-outlined">category</span></div>
+                <div>
+                    <div class="stat-value">{{ stats.files_by_type.pdf + stats.files_by_type.image + stats.files_by_type.video + stats.files_by_type.audio + stats.files_by_type.document }}</div>
+                    <div class="stat-label">Categorías Activas</div>
                 </div>
             </div>
             {% endif %}
