@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error de Base de Datos - Gulugulu</title>
+    <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
+    <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
+    <style>
+        /* Base styles */
+        :root {
+            --gulu: #5A9AB5;
+            --gulu-dark: #2C4A58;
+            --gulu-accent: #6366f1;
+            --gulu-l: #E8F4FA;
+            --text-main: #1A2E35;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fbff; color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .error-card { background: white; padding: 40px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05); text-align: center; max-width: 500px; width: 90%; }
+        .error-card h1 { color: #ef4444; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 800; }
+        .error-card p { color: rgba(0,0,0,0.6); margin-bottom: 24px; line-height: 1.6; }
+        .error-details { background: rgba(239, 68, 68, 0.1); padding: 16px; border-radius: 12px; font-family: monospace; font-size: 0.85rem; color: #ef4444; margin-bottom: 30px; text-align: left; overflow-wrap: break-word;}
+        
+        .restore-btn { background: var(--gulu); color: white; border: none; padding: 14px 28px; border-radius: 40px; font-weight: 800; font-size: 1rem; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; width: 100%; box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.3), inset 0 -3px 6px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(90, 154, 181, 0.3); }
+        .restore-btn:hover { background: var(--gulu-dark); transform: translateY(-2px); box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(90, 154, 181, 0.4); }
+        
+        /* Modal Styles */
+        .modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-card { background: #fff; border-radius: 24px; width: 90%; max-width: 850px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15); overflow: hidden; }
+        .modal-header { padding: 20px 24px; background: linear-gradient(135deg, var(--gulu), var(--gulu-accent)); color: #fff; display: flex; align-items: center; justify-content: space-between; }
+        .modal-header h3 { font-size: 1.1rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 10px; }
+        .modal-close { width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255, 255, 255, 0.2); color: #fff; display: flex; align-items: center; justify-content: center; }
+        .modal-body { padding: 0; max-height: 400px; overflow-y: auto; }
+        .modal-footer { padding: 16px 24px; display: flex; justify-content: flex-end; border-top: 1px solid rgba(0,0,0,0.05); }
+        .modal-btn { padding: 10px 24px; border-radius: 40px; border: none; cursor: pointer; font-weight: 800; background: rgba(0,0,0,0.05); font-family: inherit; color: rgba(0,0,0,0.6); }
+        .modal-btn:hover { background: rgba(0,0,0,0.1); }
+        
+        /* Table Styles */
+        .user-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 0; }
+        .user-table th { text-align: left; padding: 14px 20px; font-size: .8rem; color: rgba(0,0,0,0.35); font-weight: 800; text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .user-table td { padding: 16px 20px; font-weight: 600; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        .action-btn { width: 36px; height: 36px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.03); color: var(--gulu); transition: 0.2s; padding: 0;}
+        .action-btn:hover { background: var(--gulu-l); }
+        
+        /* Toast */
+        .toast { position: fixed; bottom: 30px; right: 30px; z-index: 600; padding: 14px 24px; border-radius: 16px; font-weight: 800; font-family: inherit; display: flex; align-items: center; gap: 10px; opacity: 0; transition: opacity 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .toast.success { background: #10b981; color: white; }
+        .toast.error { background: #ef4444; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="error-card">
+        <h1><span class="material-symbols-outlined" style="font-size: 32px;">error</span> Error Crítico de Base de Datos</h1>
+        <p>El sistema detectó que la base de datos se encuentra corrompida o ha sido eliminada. Para no perder accesos, selecciona un backup automático o manual y restáuralo a continuación.</p>
+        <div class="error-details">
+            <b>Detalles:</b><br>{{ error }}
+        </div>
+        <button class="restore-btn" onclick="openBackupModal()">
+            <span class="material-symbols-outlined">settings_backup_restore</span>
+            Restaurar Base de Datos
+        </button>
+    </div>
+
+    <!-- Backup Modal -->
+    <div class="modal-overlay" id="backupModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><span class="material-symbols-outlined">settings_backup_restore</span> Recuperación de Emergencia</h3>
+                <button class="modal-close" onclick="closeBackupModal()">
+                    <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Archivo</th>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                            <th>Tamaño</th>
+                            <th style="text-align: right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="backupList">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeBackupModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.style.opacity = '1';
+            toast.innerHTML = `<span class="material-symbols-outlined">${type === 'success' ? 'check_circle' : 'error'}</span> ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        async function openBackupModal() {
+            document.getElementById('backupModal').classList.add('active');
+            const tbody = document.getElementById('backupList');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Cargando backups...</td></tr>';
+            try {
+                const r = await fetch('/admin/backup/list');
+                const d = await r.json();
+                if (d.success) {
+                    tbody.innerHTML = '';
+                    if (d.backups.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No hay backups disponibles en la carpeta de seguridad</td></tr>';
+                        return;
+                    }
+                    d.backups.forEach(b => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${b.filename}</td>
+                            <td><span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; background:${b.type === 'Base de Datos' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(16, 185, 129, 0.1)'}; color:${b.type === 'Base de Datos' ? 'var(--gulu-accent)' : '#10b981'}; font-size: .8rem; font-weight: 800;">${b.type}</span></td>
+                            <td>${b.date}</td>
+                            <td>${b.size}</td>
+                            <td style="text-align: right; display: flex; justify-content: flex-end;">
+                                <button class="action-btn" onclick="restoreBackup('${b.filename}')" title="Restaurar este backup">
+                                    <span class="material-symbols-outlined">restore</span>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Error: ${d.error}</td></tr>`;
+                }
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Error de red al obtener backups</td></tr>';
+            }
+        }
+
+        function closeBackupModal() {
+            document.getElementById('backupModal').classList.remove('active');
+        }
+
+        async function restoreBackup(filename) {
+            if (!confirm(`¿Estás seguro de restaurar el backup de emergencia "${filename}"? Todo regresará al estado de este archivo.`)) return;
+            try {
+                showToast('Restaurando base de datos...', 'success');
+                const fd = new FormData();
+                fd.append('filename', filename);
+                const r = await fetch('/admin/backup/restore', { method: 'POST', body: fd });
+                const d = await r.json();
+                if (d.success) {
+                    showToast('Base de datos restaurada correctamente. Redirigiendo...', 'success');
+                    setTimeout(() => window.location.href = '/', 1500);
+                } else {
+                    showToast(d.error || 'Error al restaurar', 'error');
+                }
+            } catch (e) {
+                showToast('Error de red', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

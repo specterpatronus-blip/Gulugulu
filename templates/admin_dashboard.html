@@ -943,6 +943,37 @@
     </div>
     <div class="bg-blur"></div>
 
+    <!-- Backup Modal -->
+    <div class="modal-overlay" id="backupModal">
+        <div class="modal-card" style="max-width: 850px;">
+            <div class="modal-header">
+                <h3><span class="material-symbols-outlined">settings_backup_restore</span> Restaurar Backup</h3>
+                <button class="modal-close" onclick="closeBackupModal()">
+                    <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: 400px; overflow-y: auto; padding: 0;">
+                <table class="user-table" id="backupTable" style="margin-top: 0;">
+                    <thead>
+                        <tr>
+                            <th>Archivo</th>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                            <th>Tamaño</th>
+                            <th style="text-align: right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="backupList">
+                        <!-- Backups will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeBackupModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit User Modal -->
     <div class="modal-overlay" id="editModal">
         <div class="modal-card">
@@ -1029,6 +1060,14 @@
             <button class="quick-action-btn secondary" onclick="document.getElementById('createUserCard').scrollIntoView({behavior: 'smooth'})">
                 <span class="material-symbols-outlined">person_add</span>
                 Nuevo Maestro
+            </button>
+            <button class="quick-action-btn" style="background: var(--gulu-dark);" onclick="createBackup()">
+                <span class="material-symbols-outlined">save</span>
+                Crear Backup
+            </button>
+            <button class="quick-action-btn secondary" onclick="openBackupModal()">
+                <span class="material-symbols-outlined">restore</span>
+                Restaurar Backup
             </button>
             {% endif %}
         </div>
@@ -1582,6 +1621,80 @@
             } catch (e) {
                 showToast('Error de red', 'error');
                 gsap.to(row, { opacity: 1, filter: 'none' });
+            }
+        }
+        async function createBackup() {
+            if (!confirm('¿Deseas crear un nuevo backup de la base de datos ahora?')) return;
+            try {
+                showToast('Creando backup...', 'success');
+                const r = await fetch('/admin/backup/create', { method: 'POST' });
+                const d = await r.json();
+                if (d.success) {
+                    showToast('Backup creado exitosamente: ' + d.filename);
+                } else {
+                    showToast(d.error || 'Error al crear backup', 'error');
+                }
+            } catch (e) {
+                showToast('Error de red', 'error');
+            }
+        }
+
+        async function openBackupModal() {
+            document.getElementById('backupModal').classList.add('active');
+            const tbody = document.getElementById('backupList');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Cargando backups...</td></tr>';
+            try {
+                const r = await fetch('/admin/backup/list');
+                const d = await r.json();
+                if (d.success) {
+                    tbody.innerHTML = '';
+                    if (d.backups.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No hay backups disponibles</td></tr>';
+                        return;
+                    }
+                    d.backups.forEach(b => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${b.filename}</td>
+                            <td><span class="user-badge" style="background:${b.type === 'Base de Datos' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(16, 185, 129, 0.1)'}; color:${b.type === 'Base de Datos' ? 'var(--gulu-accent)' : '#10b981'};">${b.type}</span></td>
+                            <td>${b.date}</td>
+                            <td>${b.size}</td>
+                            <td style="text-align: right;">
+                                <button class="action-btn" style="color: var(--gulu);" onclick="restoreBackup('${b.filename}')" title="Restaurar este backup">
+                                    <span class="material-symbols-outlined">restore</span>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Error: ${d.error}</td></tr>`;
+                }
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Error de red</td></tr>';
+            }
+        }
+
+        function closeBackupModal() {
+            document.getElementById('backupModal').classList.remove('active');
+        }
+
+        async function restoreBackup(filename) {
+            if (!confirm(`¿Estás SEGURO de restaurar el backup "${filename}"?\n\nLa base de datos actual será reemplazada. Esta acción no se puede deshacer.`)) return;
+            try {
+                showToast('Restaurando base de datos...', 'success');
+                const fd = new FormData();
+                fd.append('filename', filename);
+                const r = await fetch('/admin/backup/restore', { method: 'POST', body: fd });
+                const d = await r.json();
+                if (d.success) {
+                    showToast('Base de datos restaurada correctamente. Recargando...', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(d.error || 'Error al restaurar', 'error');
+                }
+            } catch (e) {
+                showToast('Error de red', 'error');
             }
         }
     </script>

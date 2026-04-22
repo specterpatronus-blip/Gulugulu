@@ -1,13 +1,41 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, session
 import os
 import sqlite3
+import shutil
+import threading
+import datetime
+import time
 from werkzeug.security import generate_password_hash, check_password_hash
 from search_engine import SearchEngine
 app = Flask(__name__)
 app.secret_key = 'explorador_escolar_secret_2024'
 BD_PATH = os.path.join(os.getcwd(), 'BD')
+BACKUP_DIR = os.path.join(os.getcwd(), 'backups')
+if not os.path.exists(BACKUP_DIR):
+    os.makedirs(BACKUP_DIR)
 
 DB_PATH = os.path.join(os.getcwd(), 'database.db')
+
+def weekly_backup_task():
+    last_backup_date = None
+    while True:
+        now = datetime.datetime.now()
+        if now.weekday() == 6 and last_backup_date != now.date():
+            timestamp = now.strftime('%Y%m%d_%H%M%S')
+            # DB Backup
+            backup_db = f"backup_auto_{timestamp}.db"
+            if os.path.exists(DB_PATH):
+                shutil.copy2(DB_PATH, os.path.join(BACKUP_DIR, backup_db))
+            # Files (BD) Backup
+            backup_files_base = os.path.join(BACKUP_DIR, f"backup_files_auto_{timestamp}")
+            if os.path.exists(BD_PATH):
+                shutil.make_archive(backup_files_base, 'zip', BD_PATH)
+            
+            last_backup_date = now.date()
+        time.sleep(3600)
+
+backup_thread = threading.Thread(target=weekly_backup_task, daemon=True)
+backup_thread.start()
 
 # Initialize Search Engine
 search_engine = SearchEngine(BD_PATH)
@@ -16,6 +44,21 @@ def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+def is_db_broken():
+    if not os.path.exists(DB_PATH):
+        return True
+    try:
+        conn = get_db_connection()
+        conn.execute('SELECT 1 FROM users LIMIT 1')
+        conn.close()
+        return False
+    except Exception:
+        return True
+
+@app.errorhandler(sqlite3.Error)
+def handle_sqlite_error(e):
+    return render_template('db_error.html', error=str(e)), 500
 
 def get_dashboard_stats():
     """Calculate statistics for the admin dashboard"""
@@ -290,6 +333,99 @@ def delete_user():
 
     conn.close()
     return jsonify({'success': True})
+
+@app.route('/admin/backup/create', methods=['POST'])
+def create_backup():
+    if 'logged_in' not in session or session.get('role') != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    now = datetime.datetime.now()
+    timestamp = now.strftime('%Y%m%d_%H%M%S')
+    
+    backup_db_name = f"backup_manual_{timestamp}.db"
+    backup_db_path = os.path.join(BACKUP_DIR, backup_db_name)
+    
+    backup_files_name = f"backup_files_manual_{timestamp}"
+    backup_files_path = os.path.join(BACKUP_DIR, backup_files_name)
+    
+    success_db = False
+    success_files = False
+
+    if os.path.exists(DB_PATH):
+        shutil.copy2(DB_PATH, backup_db_path)
+        success_db = True
+    
+    if os.path.exists(BD_PATH):
+        shutil.make_archive(backup_files_path, 'zip', BD_PATH)
+        success_files = True
+
+    if success_db or success_files:
+        return jsonify({
+            'success': True, 
+            'filename': backup_db_name, # Para compatibilidad con el frontend actual
+            'db_backup': backup_db_name if success_db else None,
+            'files_backup': f"{backup_files_name}.zip" if success_files else None
+        })
+    return jsonify({'error': 'Source files not found'}), 404
+
+@app.route('/admin/backup/list', methods=['GET'])
+def list_backups():
+    if not is_db_broken():
+        if 'logged_in' not in session or session.get('role') != 'admin':
+            return jsonify({'error': 'Unauthorized'}), 401
+    
+    backups = []
+    if os.path.exists(BACKUP_DIR):
+        for f in os.listdir(BACKUP_DIR):
+            if f.endswith('.db') or f.endswith('.zip'):
+                stat = os.stat(os.path.join(BACKUP_DIR, f))
+                date_str = datetime.datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+                # Size formatting
+                size_mb = f"{stat.st_size / (1024 * 1024):.2f} MB" if stat.st_size >= 1024 * 1024 else f"{stat.st_size / 1024:.2f} KB"
+                
+                b_type = "Base de Datos" if f.endswith('.db') else "Archivos"
+                backups.append({
+                    'filename': f, 
+                    'date': date_str, 
+                    'size': size_mb,
+                    'type': b_type
+                })
+    
+    # Sort backwards by date
+    backups.sort(key=lambda x: x['date'], reverse=True)
+    return jsonify({'success': True, 'backups': backups})
+
+@app.route('/admin/backup/restore', methods=['POST'])
+def restore_backup():
+    if not is_db_broken():
+        if 'logged_in' not in session or session.get('role') != 'admin':
+            return jsonify({'error': 'Unauthorized'}), 401
+    
+    filename = request.form.get('filename')
+    if not filename:
+        return jsonify({'error': 'No filename provided'}), 400
+    
+    backup_path = os.path.join(BACKUP_DIR, filename)
+    if os.path.exists(backup_path):
+        if filename.endswith('.db'):
+            shutil.copy2(backup_path, DB_PATH)
+        elif filename.endswith('.zip'):
+            # Limpiar carpeta BD para una restauración exacta
+            for item in os.listdir(BD_PATH):
+                item_path = os.path.join(BD_PATH, item)
+                if os.path.isfile(item_path):
+                    os.remove(item_path)
+                elif os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+            
+            # Extraer el backup
+            shutil.unpack_archive(backup_path, BD_PATH, 'zip')
+            
+            # Actualizar el índice del motor de búsqueda inmediatamente
+            search_engine.index_files()
+        
+        return jsonify({'success': True})
+    return jsonify({'error': 'Backup not found'}), 404
 
 if __name__ == '__main__':
     if not os.path.exists(BD_PATH):
