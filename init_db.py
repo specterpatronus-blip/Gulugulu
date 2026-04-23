@@ -34,18 +34,27 @@ def init_db():
             FOREIGN KEY (role_id) REFERENCES roles (id)
         )
     ''')
+
+    # 3. Create File Metadata Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS file_metadata (
+            filename TEXT PRIMARY KEY,
+            uploader_name TEXT NOT NULL,
+            upload_date TEXT NOT NULL
+        )
+    ''')
     
     print("Tables created successfully.")
 
-    # 3. Insert Default Roles
+    # 4. Insert Default Roles
     roles = [('admin',), ('maestro',)]
     cursor.executemany('INSERT INTO roles (name) VALUES (?)', roles)
     
-    # 4. Get the ID for 'admin' role
+    # 5. Get the ID for 'admin' role
     cursor.execute('SELECT id FROM roles WHERE name = ?', ('admin',))
     admin_role_id = cursor.fetchone()[0]
 
-    # 5. Insert Default Admin User
+    # 6. Insert Default Admin User
     admin_cedula = '11111111'
     admin_name = 'admin'
     admin_username = 'admin'

@@ -60,9 +60,46 @@ def is_db_broken():
 def handle_sqlite_error(e):
     return render_template('db_error.html', error=str(e)), 500
 
-def get_dashboard_stats():
+def ensure_file_metadata_table():
+    if not is_db_broken():
+        conn = get_db_connection()
+        try:
+            conn.execute('''
+                CREATE TABLE IF NOT EXISTS file_metadata (
+                    filename TEXT PRIMARY KEY,
+                    uploader_name TEXT NOT NULL,
+                    upload_date TEXT NOT NULL
+                )
+            ''')
+            conn.commit()
+        except sqlite3.Error:
+            pass
+        finally:
+            conn.close()
+
+ensure_file_metadata_table()
+
+def get_file_metadata_map():
+    metadata_map = {}
+    if not is_db_broken():
+        conn = get_db_connection()
+        try:
+            rows = conn.execute("SELECT filename, uploader_name, upload_date FROM file_metadata").fetchall()
+            for r in rows:
+                metadata_map[r['filename']] = {
+                    'uploader_name': r['uploader_name'],
+                    'upload_date': r['upload_date']
+                }
+        except Exception:
+            pass
+        finally:
+            conn.close()
+    return metadata_map
+
+def get_dashboard_stats(files=None):
     """Calculate statistics for the admin dashboard"""
-    files = search_engine.index
+    if files is None:
+        files = search_engine.index
     total_files = len(files)
     total_size = sum(f.get('size', 0) for f in files)
 
@@ -85,8 +122,10 @@ def get_dashboard_stats():
     else:
         total_size_formatted = f"{total_size} B"
 
-    # Get recent files (last 3)
-    recent_files = sorted(files, key=lambda x: x.get('modified', ''), reverse=True)[:3]
+    # Get recent files (last 3) by upload date or fallback
+    recent_files = sorted([f for f in files if f.get('upload_date') and f.get('upload_date') != '-'], key=lambda x: x.get('upload_date', ''), reverse=True)[:3]
+    if not recent_files:
+        recent_files = files[:3]
 
     # Get users count
     conn = get_db_connection()
@@ -192,11 +231,20 @@ def admin_dashboard():
         ).fetchall()
         conn.close()
 
+    metadata_map = get_file_metadata_map()
+    files_with_meta = []
+    for f in search_engine.index:
+        meta = metadata_map.get(f['name'], {'uploader_name': 'Desconocido', 'upload_date': '-'})
+        f_copy = f.copy()
+        f_copy['uploader_name'] = meta['uploader_name']
+        f_copy['upload_date'] = meta['upload_date']
+        files_with_meta.append(f_copy)
+
     return render_template('admin_dashboard.html',
-                           files=search_engine.index,
+                           files=files_with_meta,
                            role=session.get('role'),
                            users=users,
-                           stats=get_dashboard_stats())
+                           stats=get_dashboard_stats(files_with_meta))
 
 @app.route('/admin/upload', methods=['POST'])
 def upload_file():
@@ -213,6 +261,21 @@ def upload_file():
     if file:
         filepath = os.path.join(BD_PATH, file.filename)
         file.save(filepath)
+        
+        conn = get_db_connection()
+        try:
+            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            uploader_name = session.get('name', 'Desconocido')
+            conn.execute('''
+                INSERT OR REPLACE INTO file_metadata (filename, uploader_name, upload_date)
+                VALUES (?, ?, ?)
+            ''', (file.filename, uploader_name, now))
+            conn.commit()
+        except Exception:
+            pass
+        finally:
+            conn.close()
+            
         search_engine.index_files()
         return jsonify({'success': True, 'filename': file.filename})
 
@@ -227,6 +290,16 @@ def delete_file():
     try:
         filepath = os.path.join(BD_PATH, filename)
         os.remove(filepath)
+        
+        conn = get_db_connection()
+        try:
+            conn.execute("DELETE FROM file_metadata WHERE filename = ?", (filename,))
+            conn.commit()
+        except Exception:
+            pass
+        finally:
+            conn.close()
+            
         search_engine.index_files()
         return jsonify({'success': True})
     except Exception as e:

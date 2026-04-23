@@ -1174,7 +1174,11 @@
                             </div>
                             <div class="recent-file-info">
                                 <div class="recent-file-name">{{ file.name }}</div>
-                                <div class="recent-file-size">{{ (file.size / 1024)|round|int }} KB</div>
+                                <div class="recent-file-size">{{ (file.size / 1024)|round|int }} KB
+                                {% if file.uploader_name %}
+                                 • {{ file.uploader_name }} el {{ file.upload_date.split(' ')[0] if file.upload_date else '' }}
+                                {% endif %}
+                                </div>
                             </div>
                             <span class="material-symbols-outlined" style="color: rgba(0,0,0,0.3);">open_in_new</span>
                         </a>
@@ -1394,7 +1398,13 @@
                         </div>
                         <div class="file-details">
                             <div class="file-name">{{ file.name }}</div>
-                            <div class="file-meta">{{ file.size_display }} • {{ file.ext|upper }}</div>
+                            <div class="file-meta">
+                                {{ file.size_display }} • {{ file.ext|upper }} 
+                                {% if file.uploader_name %}
+                                • <span class="material-symbols-outlined" style="font-size: 11px; vertical-align: middle;">person</span> {{ file.uploader_name }}
+                                • <span class="material-symbols-outlined" style="font-size: 11px; vertical-align: middle;">calendar_today</span> {{ file.upload_date }}
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                     <div class="file-actions">
