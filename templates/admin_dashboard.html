@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Panel de Control - Gulugulu 🐧</title>
+    <link rel="icon" href="/static/images/icono.png" type="image/png">
     <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
     <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
     <script src="/static/js/gsap.min.js"></script>
@@ -1353,18 +1354,24 @@
         <!-- Upload -->
         <div class="section-card" id="uploadCard">
             <div class="section-header">
-                <h2><span class="material-symbols-outlined">upload_file</span> Subir Archivo</h2>
+                <h2><span class="material-symbols-outlined">upload_file</span> Subir Archivos</h2>
+                <span id="fileCounter" style="font-weight:800; color:var(--gulu); opacity:0.6; font-size:.9rem; display:none;">0 archivos seleccionados</span>
             </div>
             <div class="section-body">
                 <form id="uploadForm">
                     <div class="drop-zone" id="dropZone">
                         <span class="material-symbols-outlined">add_circle</span>
-                        <p>Haz clic o arrastra un archivo aquí</p>
-                        <span>Gulu lo guardará en la biblioteca</span>
-                        <input type="file" id="fileInput" name="file" hidden />
+                        <p>Haz clic o arrastra tus archivos aquí</p>
+                        <span>Puedes seleccionar varios archivos a la vez</span>
+                        <input type="file" id="fileInput" name="file" multiple hidden />
                     </div>
-                    <div class="file-selected" id="fileSelected"></div>
-                    <div class="upload-actions">
+
+                    <!-- List of selected files with individual metadata -->
+                    <div id="fileListPreview" style="margin-top: 16px; display: none; flex-direction: column; gap: 12px;">
+                        <!-- Items with individual Grade/Subject selects will be injected here -->
+                    </div>
+
+                    <div class="upload-actions" style="margin-top: 24px;">
                         <button type="submit" class="upload-btn" id="uploadBtn" disabled>
                             <span class="material-symbols-outlined">cloud_upload</span>
                             Subir a Gulugulu
@@ -1404,6 +1411,10 @@
                                 • <span class="material-symbols-outlined" style="font-size: 11px; vertical-align: middle;">person</span> {{ file.uploader_name }}
                                 • <span class="material-symbols-outlined" style="font-size: 11px; vertical-align: middle;">calendar_today</span> {{ file.upload_date }}
                                 {% endif %}
+                                <div style="margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <span style="background: rgba(90, 154, 181, 0.1); color: var(--gulu); padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;">📚 {{ file.grade }}</span>
+                                    <span style="background: rgba(99, 102, 241, 0.1); color: var(--gulu-accent); padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;">💡 {{ file.subject }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1431,8 +1442,11 @@
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const uploadBtn = document.getElementById('uploadBtn');
-        const fileSelected = document.getElementById('fileSelected');
+        const fileListPreview = document.getElementById('fileListPreview');
+        const fileCounter = document.getElementById('fileCounter');
         const status = document.getElementById('uploadStatus');
+
+        let selectedFiles = [];
 
         dropZone.onclick = () => fileInput.click();
 
@@ -1442,38 +1456,137 @@
             e.preventDefault();
             dropZone.classList.remove('drag-over');
             if (e.dataTransfer.files.length) {
-                fileInput.files = e.dataTransfer.files;
-                updateFileDisplay();
+                addFiles(e.dataTransfer.files);
             }
         };
 
-        fileInput.onchange = updateFileDisplay;
+        fileInput.onchange = () => {
+            if (fileInput.files.length) {
+                addFiles(fileInput.files);
+            }
+        };
+
+        function addFiles(files) {
+            for (let file of files) {
+                // Store file + its specific metadata
+                if (!selectedFiles.some(f => f.file.name === file.name && f.file.size === file.size)) {
+                    selectedFiles.push({
+                        file: file,
+                        grade: '-',
+                        subject: '-'
+                    });
+                }
+            }
+            updateFileDisplay();
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileDisplay();
+        }
+
+        function updateItemMeta(index, field, value) {
+            if (selectedFiles[index]) {
+                selectedFiles[index][field] = value;
+            }
+        }
 
         function updateFileDisplay() {
-            if (fileInput.files.length) {
-                fileSelected.textContent = `📎 ${fileInput.files[0].name}`;
-                fileSelected.style.display = 'block';
-                uploadBtn.disabled = false;
-                gsap.from(fileSelected, { scale: 0.9, opacity: 0, duration: 0.3 });
+            fileListPreview.innerHTML = '';
+            
+            if (selectedFiles.length === 0) {
+                fileListPreview.style.display = 'none';
+                fileCounter.style.display = 'none';
+                uploadBtn.disabled = true;
+                return;
             }
+
+            fileListPreview.style.display = 'flex';
+            fileCounter.style.display = 'inline';
+            fileCounter.textContent = `${selectedFiles.length} ${selectedFiles.length === 1 ? 'archivo seleccionado' : 'archivos seleccionados'}`;
+            uploadBtn.disabled = false;
+
+            selectedFiles.forEach((itemObj, index) => {
+                const file = itemObj.file;
+                const ext = file.name.split('.').pop().toLowerCase();
+                let icon = 'description';
+                let color = '#94a3b8';
+                
+                if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) { icon = 'image'; color = '#3b82f6'; }
+                else if (['mp4', 'mov', 'avi'].includes(ext)) { icon = 'movie'; color = '#a855f7'; }
+                else if (['mp3', 'wav', 'ogg'].includes(ext)) { icon = 'music_note'; color = '#ec4899'; }
+                else if (ext === 'pdf') { icon = 'picture_as_pdf'; color = '#ef4444'; }
+
+                const item = document.createElement('div');
+                item.className = 'upload-preview-item';
+                item.style = 'display:flex; flex-direction:column; gap:12px; padding:16px; background:white; border-radius:16px; border:1px solid rgba(0,0,0,0.08); box-shadow: 0 4px 12px rgba(0,0,0,0.03); position:relative;';
+                item.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="width:40px; height:40px; border-radius:10px; background:rgba(0,0,0,0.03); display:flex; align-items:center; justify-content:center; color:${color};">
+                            <span class="material-symbols-outlined">${icon}</span>
+                        </div>
+                        <div style="flex:1; overflow:hidden;">
+                            <div style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden; font-weight:700; font-size:.95rem; color:var(--gulu-dark);">${file.name}</div>
+                            <div style="font-size:.75rem; color:rgba(0,0,0,0.4); font-weight:600;">${(file.size/1024).toFixed(0)} KB</div>
+                        </div>
+                        <button type="button" onclick="removeFile(${index})" style="background:rgba(239, 68, 68, 0.1); border:none; color:#ef4444; cursor:pointer; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition: all 0.2s;">
+                            <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+                        </button>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <select onchange="updateItemMeta(${index}, 'grade', this.value)" style="padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.1); font-size:.8rem; font-family:inherit; outline:none; cursor:pointer; background:#f9fafb;">
+                            <option value="-">Seleccionar Grado...</option>
+                            <option value="Primero" ${itemObj.grade === 'Primero' ? 'selected' : ''}>Primero</option>
+                            <option value="Segundo" ${itemObj.grade === 'Segundo' ? 'selected' : ''}>Segundo</option>
+                            <option value="Tercero" ${itemObj.grade === 'Tercero' ? 'selected' : ''}>Tercero</option>
+                            <option value="Cuarto" ${itemObj.grade === 'Cuarto' ? 'selected' : ''}>Cuarto</option>
+                            <option value="Quinto" ${itemObj.grade === 'Quinto' ? 'selected' : ''}>Quinto</option>
+                        </select>
+                        <select onchange="updateItemMeta(${index}, 'subject', this.value)" style="padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.1); font-size:.8rem; font-family:inherit; outline:none; cursor:pointer; background:#f9fafb;">
+                            <option value="-">Seleccionar Materia...</option>
+                            <option value="Matemáticas" ${itemObj.subject === 'Matemáticas' ? 'selected' : ''}>Matemáticas</option>
+                            <option value="Lengua Castellana" ${itemObj.subject === 'Lengua Castellana' ? 'selected' : ''}>Lengua Castellana</option>
+                            <option value="Ciencias Naturales" ${itemObj.subject === 'Ciencias Naturales' ? 'selected' : ''}>Ciencias Naturales</option>
+                            <option value="Ciencias Sociales" ${itemObj.subject === 'Ciencias Sociales' ? 'selected' : ''}>Ciencias Sociales</option>
+                            <option value="Inglés" ${itemObj.subject === 'Inglés' ? 'selected' : ''}>Inglés</option>
+                            <option value="Educación Física" ${itemObj.subject === 'Educación Física' ? 'selected' : ''}>Educación Física</option>
+                            <option value="Ética y Valores" ${itemObj.subject === 'Ética y Valores' ? 'selected' : ''}>Ética y Valores</option>
+                            <option value="Educación Artística" ${itemObj.subject === 'Educación Artística' ? 'selected' : ''}>Educación Artística</option>
+                            <option value="Tecnología e Informática" ${itemObj.subject === 'Tecnología e Informática' ? 'selected' : ''}>Tecnología e Informática</option>
+                            <option value="Religión" ${itemObj.subject === 'Religión' ? 'selected' : ''}>Religión</option>
+                            <option value="Otro" ${itemObj.subject === 'Otro' ? 'selected' : ''}>Otro</option>
+                        </select>
+                    </div>
+                `;
+                fileListPreview.appendChild(item);
+                gsap.from(item, { y: 10, opacity: 0, duration: 0.3, delay: index * 0.05 });
+            });
         }
 
         document.getElementById('uploadForm').onsubmit = async (e) => {
             e.preventDefault();
+            if (selectedFiles.length === 0) return;
+
             const fd = new FormData();
-            fd.append('file', fileInput.files[0]);
+            selectedFiles.forEach(item => {
+                fd.append('file', item.file);
+                fd.append('grade', item.grade);
+                fd.append('subject', item.subject);
+            });
 
             uploadBtn.disabled = true;
-            status.textContent = 'Enviando...';
+            status.textContent = `Subiendo ${selectedFiles.length} ${selectedFiles.length === 1 ? 'archivo' : 'archivos'}...`;
             status.style.color = 'var(--gulu)';
 
             try {
                 const r = await fetch('/admin/upload', { method: 'POST', body: fd });
                 const d = await r.json();
                 if (d.success) {
-                    status.textContent = '¡Listo! Guardado correctamente.';
+                    status.textContent = `¡Listo! ${d.count} archivos guardados.`;
                     status.style.color = '#10b981';
-                    setTimeout(() => location.reload(), 1000);
+                    selectedFiles = [];
+                    updateFileDisplay();
+                    setTimeout(() => location.reload(), 1500);
                 } else {
                     status.textContent = d.error || 'Error al subir.';
                     status.style.color = '#ef4444';

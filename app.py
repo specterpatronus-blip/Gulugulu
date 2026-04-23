@@ -64,13 +64,26 @@ def ensure_file_metadata_table():
     if not is_db_broken():
         conn = get_db_connection()
         try:
+            # Create table if not exists
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS file_metadata (
                     filename TEXT PRIMARY KEY,
                     uploader_name TEXT NOT NULL,
-                    upload_date TEXT NOT NULL
+                    upload_date TEXT NOT NULL,
+                    grade TEXT,
+                    subject TEXT
                 )
             ''')
+            
+            # Add columns if they don't exist (for existing databases)
+            cursor = conn.execute("PRAGMA table_info(file_metadata)")
+            columns = [info['name'] for info in cursor.fetchall()]
+            
+            if 'grade' not in columns:
+                conn.execute("ALTER TABLE file_metadata ADD COLUMN grade TEXT")
+            if 'subject' not in columns:
+                conn.execute("ALTER TABLE file_metadata ADD COLUMN subject TEXT")
+                
             conn.commit()
         except sqlite3.Error:
             pass
@@ -84,11 +97,13 @@ def get_file_metadata_map():
     if not is_db_broken():
         conn = get_db_connection()
         try:
-            rows = conn.execute("SELECT filename, uploader_name, upload_date FROM file_metadata").fetchall()
+            rows = conn.execute("SELECT filename, uploader_name, upload_date, grade, subject FROM file_metadata").fetchall()
             for r in rows:
                 metadata_map[r['filename']] = {
                     'uploader_name': r['uploader_name'],
-                    'upload_date': r['upload_date']
+                    'upload_date': r['upload_date'],
+                    'grade': r['grade'] if r['grade'] else '-',
+                    'subject': r['subject'] if r['subject'] else '-'
                 }
         except Exception:
             pass
@@ -161,16 +176,46 @@ def juego(grado, nivel):
 def search():
     query = request.args.get('q', '')
     file_filter = request.args.get('filter', 'all')
-    if not query:
-        return jsonify([])
+    grade_filter = request.args.get('grade', 'all')
     
-    results = search_engine.search(query, file_filter)
-    return jsonify(results)
+    # If no query but grade filter, get all files for that grade
+    if not query and grade_filter != 'all':
+        results = search_engine.index
+    elif not query:
+        return jsonify([])
+    else:
+        results = search_engine.search(query, file_filter)
+    
+    # Attach and filter by metadata
+    metadata_map = get_file_metadata_map()
+    final_results = []
+    
+    for item in results:
+        meta = metadata_map.get(item['name'], {
+            'uploader_name': 'Desconocido', 
+            'upload_date': '-', 
+            'grade': '-', 
+            'subject': '-'
+        })
+        
+        # Filter by grade if specified
+        if grade_filter != 'all' and meta['grade'] != grade_filter:
+            continue
+            
+        # Combine
+        res_item = item.copy()
+        res_item.update(meta)
+        if 'type_label' not in res_item:
+            res_item['type_label'] = search_engine.get_type_label(res_item['type'])
+        final_results.append(res_item)
+        
+    return jsonify(final_results)
 
 @app.route('/results')
 def results():
     query = request.args.get('q', '')
-    return render_template('results.html', query=query)
+    grade = request.args.get('grade', 'all')
+    return render_template('results.html', query=query, grade=grade)
 
 @app.route('/autocomplete')
 def autocomplete():
@@ -234,10 +279,12 @@ def admin_dashboard():
     metadata_map = get_file_metadata_map()
     files_with_meta = []
     for f in search_engine.index:
-        meta = metadata_map.get(f['name'], {'uploader_name': 'Desconocido', 'upload_date': '-'})
+        meta = metadata_map.get(f['name'], {'uploader_name': 'Desconocido', 'upload_date': '-', 'grade': '-', 'subject': '-'})
         f_copy = f.copy()
         f_copy['uploader_name'] = meta['uploader_name']
         f_copy['upload_date'] = meta['upload_date']
+        f_copy['grade'] = meta['grade']
+        f_copy['subject'] = meta['subject']
         files_with_meta.append(f_copy)
 
     return render_template('admin_dashboard.html',
@@ -254,30 +301,43 @@ def upload_file():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
         
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+    files = request.files.getlist('file')
+    if not files or (len(files) == 1 and files[0].filename == ''):
+        return jsonify({'error': 'No selected files'}), 400
+    
+    uploaded_filenames = []
+    # Receive lists of metadata to match each file
+    grades = request.form.getlist('grade')
+    subjects = request.form.getlist('subject')
+    
+    conn = get_db_connection()
+    try:
+        uploader_name = session.get('name', 'Desconocido')
+        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-    if file:
-        filepath = os.path.join(BD_PATH, file.filename)
-        file.save(filepath)
-        
-        conn = get_db_connection()
-        try:
-            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            uploader_name = session.get('name', 'Desconocido')
-            conn.execute('''
-                INSERT OR REPLACE INTO file_metadata (filename, uploader_name, upload_date)
-                VALUES (?, ?, ?)
-            ''', (file.filename, uploader_name, now))
-            conn.commit()
-        except Exception:
-            pass
-        finally:
-            conn.close()
+        for i, file in enumerate(files):
+            if file and file.filename:
+                # Match metadata by index, fallback to '-'
+                g = grades[i] if i < len(grades) else '-'
+                s = subjects[i] if i < len(subjects) else '-'
+                
+                filepath = os.path.join(BD_PATH, file.filename)
+                file.save(filepath)
+                
+                conn.execute('''
+                    INSERT OR REPLACE INTO file_metadata (filename, uploader_name, upload_date, grade, subject)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (file.filename, uploader_name, now, g, s))
+                uploaded_filenames.append(file.filename)
+                
+        conn.commit()
+    except Exception as e:
+        return jsonify({'error': f'Error en base de datos: {str(e)}'}), 500
+    finally:
+        conn.close()
             
-        search_engine.index_files()
-        return jsonify({'success': True, 'filename': file.filename})
+    search_engine.index_files()
+    return jsonify({'success': True, 'count': len(uploaded_filenames), 'filenames': uploaded_filenames})
 
 @app.route('/admin/delete', methods=['POST'])
 def delete_file():

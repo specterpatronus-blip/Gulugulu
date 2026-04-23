@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Resultados - Gulugulu 🐧</title>
+    <link rel="icon" href="/static/images/icono.png" type="image/png">
     <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
     <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
     <script src="/static/js/gsap.min.js"></script>
@@ -501,7 +502,15 @@
                         style="width:16px; height:16px; border-radius:50%;" />
                     <span id="badgeText">Buscando...</span>
                 </div>
-                <h2 class="results-title">Resultados para <span class="query">'{{ query }}'</span></h2>
+                <h2 class="results-title">
+                    {% if query %}
+                    Resultados para <span class="query">'{{ query }}'</span>
+                    {% elif grade != 'all' %}
+                    Archivos de <span class="query">{{ grade }}</span>
+                    {% else %}
+                    Todos los archivos
+                    {% endif %}
+                </h2>
             </div>
             <div class="results-grid" id="resultsGrid"></div>
             <div class="no-results" id="noResults">
@@ -526,11 +535,13 @@
 
     <script>
         const query = "{{ query }}";
+        const initialGrade = "{{ grade }}";
         const grid = document.getElementById('resultsGrid');
         const badge = document.getElementById('badgeText');
         const noResults = document.getElementById('noResults');
         const toast = document.getElementById('guluToast');
         let currentFilter = 'all';
+        let currentGrade = initialGrade;
 
         const typeStyles = {
             image: { icon: 'image', bg: 'rgba(59,130,246,0.08)', color: '#3b82f6' },
@@ -566,7 +577,8 @@
 
         async function fetchResults(filter) {
             try {
-                const r = await fetch(`/search?q=${encodeURIComponent(query)}&filter=${filter}`);
+                const url = `/search?q=${encodeURIComponent(query)}&filter=${filter}&grade=${encodeURIComponent(currentGrade)}`;
+                const r = await fetch(url);
                 const data = await r.json();
                 renderResults(data);
             } catch (e) {
@@ -603,7 +615,10 @@
                     ${preview}
                     <div class="card-title">${item.name}</div>
                     <div class="card-meta">
-                        <span>${item.type_label}</span>
+                        <div style="display:flex; flex-direction:column; gap:2px;">
+                            <span style="font-size:10px; color:var(--gulu); font-weight:800;">📚 ${item.grade}</span>
+                            <span>${item.type_label}</span>
+                        </div>
                         <span class="card-badge" style="background:${s.bg}; color:${s.color}">${item.ext}</span>
                     </div>
                 `;
