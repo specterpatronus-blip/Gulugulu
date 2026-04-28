@@ -119,13 +119,12 @@ def get_dashboard_stats(files=None):
     total_size = sum(f.get('size', 0) for f in files)
 
     # Files by type
-    files_by_type = {'pdf': 0, 'image': 0, 'video': 0, 'audio': 0, 'document': 0}
+    files_by_type = {'pdf': 0, 'image': 0, 'video': 0, 'audio': 0}
     for f in files:
-        file_type = f.get('type', 'document')
-        if file_type in files_by_type:
-            files_by_type[file_type] += 1
-        else:
-            files_by_type['document'] += 1
+        file_type = f.get('type', 'pdf')
+        if file_type == 'document' or file_type not in files_by_type:
+            file_type = 'pdf'
+        files_by_type[file_type] += 1
 
     # Format total size
     if total_size >= 1024 * 1024 * 1024:
@@ -136,6 +135,14 @@ def get_dashboard_stats(files=None):
         total_size_formatted = f"{total_size / 1024:.1f} KB"
     else:
         total_size_formatted = f"{total_size} B"
+
+    # Get most active grade
+    files_by_grade = {}
+    for f in files:
+        g = f.get('grade', '-')
+        if g and g != '-':
+            files_by_grade[g] = files_by_grade.get(g, 0) + 1
+    most_active_grade = max(files_by_grade, key=files_by_grade.get) if files_by_grade else '-'
 
     # Get recent files (last 3) by upload date or fallback
     recent_files = sorted([f for f in files if f.get('upload_date') and f.get('upload_date') != '-'], key=lambda x: x.get('upload_date', ''), reverse=True)[:3]
@@ -153,7 +160,8 @@ def get_dashboard_stats(files=None):
         'total_size_bytes': total_size,
         'files_by_type': files_by_type,
         'total_users': users_count,
-        'recent_files': recent_files
+        'recent_files': recent_files,
+        'most_active_grade': most_active_grade
     }
 
 @app.route('/')
@@ -177,9 +185,10 @@ def search():
     query = request.args.get('q', '')
     file_filter = request.args.get('filter', 'all')
     grade_filter = request.args.get('grade', 'all')
+    subject_filter = request.args.get('subject', 'all')
     
-    # If no query but grade filter, get all files for that grade
-    if not query and grade_filter != 'all':
+    # If no query but grade or subject filter, get all files
+    if not query and (grade_filter != 'all' or subject_filter != 'all'):
         results = search_engine.index
     elif not query:
         return jsonify([])
@@ -202,6 +211,21 @@ def search():
         if grade_filter != 'all' and meta['grade'] != grade_filter:
             continue
             
+        # Filter by subject if specified
+        if subject_filter != 'all' and meta['subject'] != subject_filter:
+            continue
+            
+        # Filter by file type if specified (especially for the case without search query)
+        if file_filter != 'all':
+            if file_filter == 'image' and item['type'] != 'image':
+                continue
+            elif file_filter == 'video' and item['type'] != 'video':
+                continue
+            elif file_filter == 'audio' and item['type'] != 'audio':
+                continue
+            elif file_filter == 'document' and item['type'] not in ['pdf', 'word', 'text', 'presentation', 'spreadsheet']:
+                continue
+            
         # Combine
         res_item = item.copy()
         res_item.update(meta)
@@ -215,7 +239,8 @@ def search():
 def results():
     query = request.args.get('q', '')
     grade = request.args.get('grade', 'all')
-    return render_template('results.html', query=query, grade=grade)
+    subject = request.args.get('subject', 'all')
+    return render_template('results.html', query=query, grade=grade, subject=subject)
 
 @app.route('/autocomplete')
 def autocomplete():

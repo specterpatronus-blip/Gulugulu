@@ -465,6 +465,8 @@
                 <span class="material-symbols-outlined"
                     style="font-size:22px;color:var(--gulu);opacity:0.6">search</span>
                 <input name="q" value="{{ query }}" placeholder="Busca de nuevo..." />
+                <input type="hidden" name="grade" value="{{ grade }}" />
+                <input type="hidden" name="subject" value="{{ subject }}" id="hiddenSubject" />
             </form>
             <a href="/" class="back-btn">
                 <span class="material-symbols-outlined" style="font-size:18px">home</span>
@@ -496,21 +498,41 @@
         </aside>
 
         <div class="results-area">
-            <div class="results-header">
-                <div class="result-badge">
-                    <img src="/static/images/gulu-icon.jpeg" alt=""
-                        style="width:16px; height:16px; border-radius:50%;" />
-                    <span id="badgeText">Buscando...</span>
+            <div class="results-header" style="display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                <div>
+                    <div class="result-badge">
+                        <img src="/static/images/gulu-icon.jpeg" alt=""
+                            style="width:16px; height:16px; border-radius:50%;" />
+                        <span id="badgeText">Buscando...</span>
+                    </div>
+                    <h2 class="results-title">
+                        {% if query %}
+                        Resultados para <span class="query">'{{ query }}'</span>
+                        {% elif grade != 'all' %}
+                        Archivos de <span class="query">{{ grade }}</span>
+                        {% else %}
+                        Todos los archivos
+                        {% endif %}
+                    </h2>
                 </div>
-                <h2 class="results-title">
-                    {% if query %}
-                    Resultados para <span class="query">'{{ query }}'</span>
-                    {% elif grade != 'all' %}
-                    Archivos de <span class="query">{{ grade }}</span>
-                    {% else %}
-                    Todos los archivos
-                    {% endif %}
-                </h2>
+                
+                <div class="subject-filter-wrapper" style="margin-bottom: 5px;">
+                    <label for="subjectSelect" style="display: block; font-size: 11px; font-weight: 800; color: var(--gulu); text-transform: uppercase; margin-bottom: 6px; margin-left: 4px;">Filtrar por Materia</label>
+                    <select id="subjectSelect" onchange="applySubjectFilter(this.value)" style="padding: 12px 24px; border-radius: 16px; border: 3px solid var(--gulu); background: white; font-family: inherit; font-weight: 800; color: var(--gulu-dark); cursor: pointer; outline: none; box-shadow: 0 6px 0 var(--gulu); transition: all 0.2s; min-width: 220px;">
+                        <option value="all">Todas las materias</option>
+                        <option value="Matemáticas" {% if subject == 'Matemáticas' %}selected{% endif %}>Matemáticas</option>
+                        <option value="Lengua Castellana" {% if subject == 'Lengua Castellana' %}selected{% endif %}>Lengua Castellana</option>
+                        <option value="Ciencias Naturales" {% if subject == 'Ciencias Naturales' %}selected{% endif %}>Ciencias Naturales</option>
+                        <option value="Ciencias Sociales" {% if subject == 'Ciencias Sociales' %}selected{% endif %}>Ciencias Sociales</option>
+                        <option value="Inglés" {% if subject == 'Inglés' %}selected{% endif %}>Inglés</option>
+                        <option value="Educación Física" {% if subject == 'Educación Física' %}selected{% endif %}>Educación Física</option>
+                        <option value="Ética y Valores" {% if subject == 'Ética y Valores' %}selected{% endif %}>Ética y Valores</option>
+                        <option value="Educación Artística" {% if subject == 'Educación Artística' %}selected{% endif %}>Educación Artística</option>
+                        <option value="Tecnología e Informática" {% if subject == 'Tecnología e Informática' %}selected{% endif %}>Tecnología e Informática</option>
+                        <option value="Religión" {% if subject == 'Religión' %}selected{% endif %}>Religión</option>
+                        <option value="Otro" {% if subject == 'Otro' %}selected{% endif %}>Otro</option>
+                    </select>
+                </div>
             </div>
             <div class="results-grid" id="resultsGrid"></div>
             <div class="no-results" id="noResults">
@@ -536,12 +558,14 @@
     <script>
         const query = "{{ query }}";
         const initialGrade = "{{ grade }}";
+        const initialSubject = "{{ subject }}";
         const grid = document.getElementById('resultsGrid');
         const badge = document.getElementById('badgeText');
         const noResults = document.getElementById('noResults');
         const toast = document.getElementById('guluToast');
         let currentFilter = 'all';
         let currentGrade = initialGrade;
+        let currentSubject = initialSubject;
 
         const typeStyles = {
             image: { icon: 'image', bg: 'rgba(59,130,246,0.08)', color: '#3b82f6' },
@@ -577,7 +601,7 @@
 
         async function fetchResults(filter) {
             try {
-                const url = `/search?q=${encodeURIComponent(query)}&filter=${filter}&grade=${encodeURIComponent(currentGrade)}`;
+                const url = `/search?q=${encodeURIComponent(query)}&filter=${filter}&grade=${encodeURIComponent(currentGrade)}&subject=${encodeURIComponent(currentSubject)}`;
                 const r = await fetch(url);
                 const data = await r.json();
                 renderResults(data);
@@ -635,10 +659,16 @@
             fetchResults(filter);
         }
 
+        function applySubjectFilter(subject) {
+            currentSubject = subject;
+            document.getElementById('hiddenSubject').value = subject;
+            fetchResults(currentFilter);
+        }
+
         gsap.from('.header', { y: -30, opacity: 0, duration: 0.6, ease: "power3.out" });
         gsap.from('.sidebar', { x: -30, opacity: 0, duration: 0.6, ease: "power3.out", delay: 0.3 });
 
-        if (query) fetchResults(currentFilter);
+        if (query || currentGrade !== 'all' || currentSubject !== 'all') fetchResults(currentFilter);
     </script>
 </body>
 

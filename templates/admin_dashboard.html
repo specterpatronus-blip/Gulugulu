@@ -1135,18 +1135,7 @@
                             <div class="file-type-bar-fill audio" style="width: {% if stats.total_files > 0 %}{{ (stats.files_by_type.audio / stats.total_files * 100)|round }}%{% else %}0%{% endif %};"></div>
                         </div>
 
-                        <div class="file-type-item">
-                            <div class="file-type-info">
-                                <div class="file-type-icon" style="background: rgba(148, 163, 184, 0.1); color: #94a3b8;">
-                                    <span class="material-symbols-outlined">description</span>
-                                </div>
-                                <span class="file-type-name">Documentos</span>
-                            </div>
-                            <span class="file-type-count">{{ stats.files_by_type.document }}</span>
-                        </div>
-                        <div class="file-type-bar">
-                            <div class="file-type-bar-fill document" style="width: {% if stats.total_files > 0 %}{{ (stats.files_by_type.document / stats.total_files * 100)|round }}%{% else %}0%{% endif %};"></div>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -1224,10 +1213,10 @@
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background:rgba(251, 191, 36, 0.1); color:#fbbf24"><span
-                        class="material-symbols-outlined">category</span></div>
+                        class="material-symbols-outlined">star</span></div>
                 <div>
-                    <div class="stat-value">{{ stats.files_by_type.pdf + stats.files_by_type.image + stats.files_by_type.video + stats.files_by_type.audio + stats.files_by_type.document }}</div>
-                    <div class="stat-label">Categorías Activas</div>
+                    <div class="stat-value">{{ stats.most_active_grade }}</div>
+                    <div class="stat-label">Grado más Popular</div>
                 </div>
             </div>
             {% endif %}
