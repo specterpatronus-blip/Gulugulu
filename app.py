@@ -144,6 +144,7 @@ def get_dashboard_stats(files=None):
             files_by_grade[g] = files_by_grade.get(g, 0) + 1
     most_active_grade = max(files_by_grade, key=files_by_grade.get) if files_by_grade else '-'
 
+
     # Get recent files (last 3) by upload date or fallback
     recent_files = sorted([f for f in files if f.get('upload_date') and f.get('upload_date') != '-'], key=lambda x: x.get('upload_date', ''), reverse=True)[:3]
     if not recent_files:
@@ -177,6 +178,14 @@ def juego(grado, nivel):
     # Depending on the grade, render the corresponding game engine
     if grado == 1:
         return render_template('juegos/grado1.html', game_id=nivel)
+    if grado == 2:
+        return render_template('juegos/grado2.html', game_id=nivel)
+    if grado == 3:
+        return render_template('juegos/grado3.html', game_id=nivel)
+    if grado == 4:
+        return render_template('juegos/grado4.html', game_id=nivel)
+    if grado == 5:
+        return render_template('juegos/grado5.html', game_id=nivel)
     # Fallback for unconnected grades
     return redirect(url_for('minijuegos'))
 

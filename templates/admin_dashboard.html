@@ -1318,10 +1318,16 @@
                             <div class="recent-file-info">
                                 <div class="recent-file-name">{{ file.name }}</div>
                                 <div class="recent-file-size">{{ (file.size / 1024)|round|int }} KB
+<<<<<<< HEAD
                                     {% if file.uploader_name %}
                                     • {{ file.uploader_name }} el {{ file.upload_date.split(' ')[0] if file.upload_date
                                     else '' }}
                                     {% endif %}
+=======
+                                {% if file.uploader_name %}
+                                 • {{ file.uploader_name }} el {{ file.upload_date.split(' ')[0] if file.upload_date else '' }}
+                                {% endif %}
+>>>>>>> af529883efc786d2f7bc628ca9b283c3fd82e2d7
                                 </div>
                             </div>
                             <span class="material-symbols-outlined" style="color: rgba(0,0,0,0.3);">open_in_new</span>
@@ -1570,6 +1576,7 @@
                         <div class="file-details">
                             <div class="file-name">{{ file.name }}</div>
                             <div class="file-meta">
+<<<<<<< HEAD
                                 {{ file.size_display }} • {{ file.ext|upper }}
                                 {% if file.uploader_name %}
                                 • <span class="material-symbols-outlined"
@@ -1587,6 +1594,13 @@
                                         style="background: rgba(99, 102, 241, 0.1); color: var(--gulu-accent); padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;">💡
                                         {{ file.subject }}</span>
                                 </div>
+=======
+                                {{ file.size_display }} • {{ file.ext|upper }} 
+                                {% if file.uploader_name %}
+                                • <span class="material-symbols-outlined" style="font-size: 11px; vertical-align: middle;">person</span> {{ file.uploader_name }}
+                                • <span class="material-symbols-outlined" style="font-size: 11px; vertical-align: middle;">calendar_today</span> {{ file.upload_date }}
+                                {% endif %}
+>>>>>>> af529883efc786d2f7bc628ca9b283c3fd82e2d7
                             </div>
                         </div>
                     </div>

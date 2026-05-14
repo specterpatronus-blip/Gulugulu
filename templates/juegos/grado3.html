@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minijuegos 3º Grado - Gulugulu</title>
+  <link rel="icon" href="/static/images/icono.png" type="image/png">
+  <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
+  <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
+  <script src="/static/js/vue.global.js"></script>
+  <script src="/static/js/gsap.min.js"></script>
+  <script src="/static/js/confetti.browser.min.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --gulu: #5A9AB5;
+      --gulu-dark: #2C4A58;
+      --gulu-accent: #6366f1;
+      --text: #1A2E35;
+      --glass: rgba(255, 255, 255, .85);
+      --hglass: rgba(255, 255, 255, .7);
+      --green: #10B981
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fbff;
+      color: var(--text);
+      overflow-x: hidden;
+      min-height: 100vh
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24
+    }
+
+    .bg-container {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      overflow: hidden
+    }
+
+    .bg-webp {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .bg-blur {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background: linear-gradient(90deg, rgba(255, 255, 255, .4) 0%, rgba(255, 255, 255, .1) 40%, transparent 100%);
+      pointer-events: none
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 12px 24px;
+      backdrop-filter: blur(15px) saturate(180%);
+      background: var(--hglass);
+      border-bottom: 1px solid rgba(255, 255, 255, .4);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, .03);
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .logo:hover {
+      transform: scale(1.02)
+    }
+
+    .logo img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .1)
+    }
+
+    .logo span {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .header-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 14px;
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--gulu-dark);
+      border: 1px solid rgba(0, 0, 0, .05);
+      background: rgba(255, 255, 255, .4);
+      backdrop-filter: blur(5px);
+      transition: all .3s
+    }
+
+    .header-link:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, .05);
+      border-color: var(--gulu)
+    }
+
+    #game-app {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      padding: 20px 30px;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, .05);
+      border: 1px solid rgba(255, 255, 255, .8);
+      margin-bottom: 40px
+    }
+
+    .level-info h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #059669;
+      margin-bottom: 4px
+    }
+
+    .level-info p {
+      font-size: 1rem;
+      color: #64748b;
+      font-weight: 600
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px
+    }
+
+    .stat-box {
+      background: #fff;
+      padding: 10px 20px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, .04);
+      border: 2px solid #e2e8f0
+    }
+
+    .stat-box.hi {
+      border-color: var(--green);
+      background: #ECFDF5
+    }
+
+    .stat-box span {
+      font-size: .85rem;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .05em
+    }
+
+    .stat-box strong {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text)
+    }
+
+    .canvas {
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      padding: 50px;
+      min-height: 500px;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, .05);
+      border: 2px solid rgba(255, 255, 255, .8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden
+    }
+
+    .prompt {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #111827;
+      text-align: center;
+      margin-bottom: 30px
+    }
+
+    .sub-prompt {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 25px;
+      text-align: center
+    }
+
+    .opts {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap
+    }
+
+    .btn-opt {
+      padding: 18px 36px;
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: #fff;
+      border: 4px solid #CBD5E1;
+      border-radius: 20px;
+      color: var(--text);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, .05);
+      transition: all .2s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    .btn-opt:hover {
+      transform: translateY(-5px);
+      border-color: var(--green);
+      box-shadow: 0 15px 25px rgba(16, 185, 129, .2);
+      color: var(--green)
+    }
+
+    .btn-opt.sm {
+      font-size: 1.2rem;
+      padding: 14px 28px
+    }
+
+    .math-expr {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 4.5rem;
+      font-weight: 900;
+      color: #111827;
+      margin-bottom: 40px
+    }
+
+    .math-block {
+      background: #fff;
+      border-radius: 20px;
+      padding: 16px 30px;
+      border: 3px solid #e2e8f0;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, .04)
+    }
+
+    .frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 3rem;
+      font-weight: 900;
+      margin-bottom: 30px
+    }
+
+    .frac-num {
+      border-bottom: 4px solid #059669;
+      padding: 0 20px 8px;
+      color: #059669
+    }
+
+    .frac-den {
+      padding: 8px 20px 0;
+      color: #111827
+    }
+
+    .planet-board,
+    .chain-board {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 25px
+    }
+
+    .planet-chip,
+    .chain-chip {
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: #fff;
+      border: 3px solid #e2e8f0;
+      border-radius: 99px;
+      cursor: pointer;
+      transition: all .2s;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .05)
+    }
+
+    .planet-chip:hover,
+    .chain-chip:hover {
+      transform: translateY(-4px);
+      border-color: var(--green);
+      box-shadow: 0 10px 20px rgba(16, 185, 129, .15)
+    }
+
+    .planet-chip.placed,
+    .chain-chip.placed {
+      opacity: .3;
+      pointer-events: none;
+      background: #F1F5F9
+    }
+
+    .progress-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 15px
+    }
+
+    .prog-chip {
+      padding: 8px 16px;
+      font-size: .95rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--green), #059669);
+      color: #fff;
+      border-radius: 99px;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, .3)
+    }
+
+    .conj-card,
+    .ant-card {
+      text-align: center;
+      margin-bottom: 30px
+    }
+
+    .conj-verb {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #059669
+    }
+
+    .conj-tense {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-top: 8px
+    }
+
+    .ant-word {
+      font-size: 4rem;
+      font-weight: 900;
+      color: #111827
+    }
+
+    .shape-disp {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 20px;
+      text-align: center
+    }
+
+    .shape-visual {
+      font-size: 6rem;
+      margin-bottom: 20px
+    }
+
+    .sides-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 30px
+    }
+
+    .side-tag {
+      padding: 8px 18px;
+      background: #DBEAFE;
+      color: #1E40AF;
+      font-weight: 800;
+      font-size: 1.1rem;
+      border-radius: 99px
+    }
+
+    .state-card {
+      text-align: center;
+      margin-bottom: 30px
+    }
+
+    .state-emoji {
+      font-size: 7rem;
+      display: block;
+      margin-bottom: 10px
+    }
+
+    .state-name {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #111827
+    }
+
+    .state-btn {
+      padding: 16px 30px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all .2s;
+      border: 3px solid transparent
+    }
+
+    .state-btn.s {
+      background: #DBEAFE;
+      color: #1E40AF;
+      border-color: #93C5FD
+    }
+
+    .state-btn.l {
+      background: #ECFDF5;
+      color: #065F46;
+      border-color: #6EE7B7
+    }
+
+    .state-btn.g {
+      background: #FEF3C7;
+      color: #92400E;
+      border-color: #FCD34D
+    }
+
+    .state-btn:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, .1)
+    }
+
+    .continent-clue {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #64748b;
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #F8FAFC;
+      border-radius: 20px;
+      border: 2px solid #e2e8f0;
+      width: 100%;
+      max-width: 500px
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .6);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 50px 40px;
+      border-radius: 30px;
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, .25)
+    }
+
+    .modal-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #F59E0B, #FCD34D);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .modal-content h2 {
+      font-size: 2.5rem;
+      color: #111827;
+      margin-bottom: 10px;
+      font-weight: 800
+    }
+
+    .modal-content p {
+      font-size: 1.1rem;
+      color: #64748b;
+      margin-bottom: 30px
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 800;
+      border-radius: 99px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(16, 185, 129, .3);
+      transition: all .2s;
+      text-decoration: none
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 25px rgba(16, 185, 129, .4)
+    }
+
+    .fade-enter-active,
+    .fade-leave-active {
+      transition: opacity .5s ease
+    }
+
+    .fade-enter-from,
+    .fade-leave-to {
+      opacity: 0
+    }
+
+    [v-cloak] {
+      display: none
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-container"><img src="/static/videos/fondo.webp" alt="" class="bg-webp" aria-hidden="true" /></div>
+  <div class="bg-blur"></div>
+  <header class="header">
+    <a href="/" class="logo"><img src="/static/images/gulu-icon.jpeg" alt="Gulu" /><span>gulugulu</span></a>
+    <a href="/minijuegos" class="header-link"><span class="material-symbols-outlined"
+        style="font-size:18px">arrow_back</span>Grados</a>
+  </header>
+  <div id="game-app" v-cloak>
+    <div class="top-bar">
+      <div class="level-info">
+        <h1>[[ config.title ]]</h1>
+        <p>Juego [[ gameId ]] de 10 &bull; Tercer Grado</p>
+      </div>
+      <div class="stats">
+        <div class="stat-box" v-if="config.showScore"><span>Puntos</span><strong>[[ score ]]/[[ config.maxScore
+            ]]</strong></div>
+        <div class="stat-box hi"><span>Tiempo</span><strong>[[ fmtTime ]]</strong></div>
+      </div>
+    </div>
+    <div class="canvas" id="canvas-area" v-if="!gameWon">
+
+      <!-- G1: Multiplicaciones -->
+      <template v-if="gameId===1">
+        <div class="prompt">¿Cuánto es la multiplicación?</div>
+        <div class="math-expr">
+          <div class="math-block">[[ g1.a ]]</div><span>×</span>
+          <div class="math-block">[[ g1.b ]]</div><span>=</span><span style="color:#CBD5E1">?</span>
+        </div>
+        <div class="opts"><button class="btn-opt sm" v-for="o in g1.opts" :key="o" @click="pG1(o,$event)">[[ o
+            ]]</button></div>
+      </template>
+
+      <!-- G2: División -->
+      <template v-if="gameId===2">
+        <div class="prompt">¿Cuánto es la división?</div>
+        <div class="math-expr">
+          <div class="math-block">[[ g2.a ]]</div><span>÷</span>
+          <div class="math-block">[[ g2.b ]]</div><span>=</span><span style="color:#CBD5E1">?</span>
+        </div>
+        <div class="opts"><button class="btn-opt sm" v-for="o in g2.opts" :key="o" @click="pG2(o,$event)">[[ o
+            ]]</button></div>
+      </template>
+
+      <!-- G3: Fracciones -->
+      <template v-if="gameId===3">
+        <div class="prompt">¿Cuál fracción es equivalente?</div>
+        <div class="frac"><span class="frac-num">[[ g3.num ]]</span><span class="frac-den">[[ g3.den ]]</span></div>
+        <div class="opts"><button class="btn-opt sm" v-for="o in g3.opts" :key="o" @click="pG3(o,$event)">[[ o
+            ]]</button></div>
+      </template>
+
+      <!-- G4: Sistema Solar -->
+      <template v-if="gameId===4">
+        <div class="prompt">Ordena los planetas desde el Sol ☀️</div>
+        <div class="sub-prompt">Toca en el orden correcto</div>
+        <div class="planet-board">
+          <div class="planet-chip" v-for="p in g4.shuffled" :key="p" :class="{placed:g4.placed.includes(p)}"
+            @click="pG4(p)">[[ p ]]</div>
+        </div>
+        <div class="progress-row" v-if="g4.placed.length">
+          <div class="prog-chip" v-for="(p,i) in g4.placed" :key="i">[[ i+1 ]]. [[ p ]]</div>
+        </div>
+      </template>
+
+      <!-- G5: Conjugación -->
+      <template v-if="gameId===5">
+        <div class="prompt">¿Cómo se conjuga en [[ g5.data[g5.idx].tense ]]?</div>
+        <div class="conj-card">
+          <div class="conj-verb">[[ g5.data[g5.idx].inf ]]</div>
+          <div class="conj-tense">Tiempo: [[ g5.data[g5.idx].tense ]]</div>
+        </div>
+        <div class="opts"><button class="btn-opt sm" v-for="o in g5.data[g5.idx].opts" :key="o"
+            @click="pG5(o,$event)">[[ o ]]</button></div>
+      </template>
+
+      <!-- G6: Antónimos -->
+      <template v-if="gameId===6">
+        <div class="prompt">¿Cuál es el antónimo?</div>
+        <div class="ant-card">
+          <div class="ant-word">[[ g6.data[g6.idx].w ]]</div>
+        </div>
+        <div class="opts"><button class="btn-opt sm" v-for="o in g6.opts" :key="o" @click="pG6(o,$event)">[[ o
+            ]]</button></div>
+      </template>
+
+      <!-- G7: Perímetro -->
+      <template v-if="gameId===7">
+        <div class="prompt">¿Cuál es el perímetro de este [[ g7.shape ]]?</div>
+        <div class="shape-disp">Lados de la figura:</div>
+        <div class="sides-row"><span class="side-tag" v-for="(s,i) in g7.sides" :key="i">[[ s ]] cm</span></div>
+        <div class="opts"><button class="btn-opt sm" v-for="o in g7.opts" :key="o" @click="pG7(o,$event)">[[ o ]]
+            cm</button></div>
+      </template>
+
+      <!-- G8: Estados del Agua -->
+      <template v-if="gameId===8">
+        <div class="prompt">¿En qué estado está?</div>
+        <div class="state-card"><span class="state-emoji">[[ g8.items[g8.idx].e ]]</span>
+          <div class="state-name">[[ g8.items[g8.idx].n ]]</div>
+        </div>
+        <div class="opts" style="gap:16px">
+          <button class="state-btn s" @click="pG8('sólido',$event)">🧊 Sólido</button>
+          <button class="state-btn l" @click="pG8('líquido',$event)">💧 Líquido</button>
+          <button class="state-btn g" @click="pG8('gaseoso',$event)">💨 Gaseoso</button>
+        </div>
+      </template>
+
+      <!-- G9: Continentes -->
+      <template v-if="gameId===9">
+        <div class="prompt">¿De qué continente se habla?</div>
+        <div class="continent-clue">"[[ g9.clue ]]"</div>
+        <div class="opts"><button class="btn-opt sm" v-for="o in g9.opts" :key="o" @click="pG9(o,$event)">[[ o
+            ]]</button></div>
+      </template>
+
+      <!-- G10: Cadena Alimentaria -->
+      <template v-if="gameId===10">
+        <div class="prompt">Ordena la cadena alimentaria 🌿→🐛→🐸→🦅</div>
+        <div class="chain-board">
+          <div class="chain-chip" v-for="p in g10.shuffled" :key="p" :class="{placed:g10.placed.includes(p)}"
+            @click="pG10(p)">[[ p ]]</div>
+        </div>
+        <div class="progress-row" v-if="g10.placed.length">
+          <div class="prog-chip" v-for="(p,i) in g10.placed" :key="i">[[ i+1 ]]. [[ p ]]</div>
+        </div>
+      </template>
+
+    </div>
+    <transition name="fade">
+      <div class="modal-overlay" v-show="gameWon">
+        <div class="modal-content" id="vm">
+          <span class="material-symbols-outlined modal-icon">stars</span>
+          <h2>¡Excelente!</h2>
+          <p>¡Completado en [[ fmtTime ]]!</p>
+          <a v-if="gameId<10" :href="'/juego/3/'+(gameId+1)" class="btn-primary">Siguiente Juego <span
+              class="material-symbols-outlined">arrow_forward</span></a>
+          <a v-else href="/minijuegos" class="btn-primary">¡Completaste Todo! <span
+              class="material-symbols-outlined">check_circle</span></a>
+        </div>
+      </div>
+    </transition>
+  </div>
+  <script>const GAME_ID = parseInt("{{ game_id|default(1) }}", 10);</script>
+  <script src="/static/js/grado3.js"></script>
+</body>
+
+</html>
