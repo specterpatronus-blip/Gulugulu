@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resultados - Gulugulu 🐧</title>
+    <link rel="icon" href="/static/images/icono.png" type="image/png">
+    <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
+    <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
+    <script src="/static/js/fullscreen.js"></script>
+    <style>
+        /* ============ BASE ============ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --gulu: #5A9AB5;
+            --gulu-dark: #2C4A58;
+            --gulu-l: #E8F4FA;
+            --gulu-accent: #6366f1;
+            --text-main: #1A2E35;
+            --card-glass: rgba(255, 255, 255, 0.85);
+            --header-glass: rgba(255, 255, 255, 0.85);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8fbff;
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24
+        }
+
+        /* ============ BACKGROUND ============ */
+        .bg-container {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            overflow: hidden;
+        }
+
+        .bg-webp {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bg-blur-gradient {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: rgba(255, 255, 255, 0.55);
+            pointer-events: none;
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 10px 24px;
+            background: var(--header-glass);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            justify-content: space-between
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo span {
+            font-size: 1.15rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-search {
+            flex: 1;
+            max-width: 500px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px 8px 22px;
+            border-radius: 50px;
+            background: #fff;
+            border: 3px solid #0056D2;
+            box-shadow: 0 4px 0 #0056D2;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        .header-search:focus-within {
+            transform: translateY(2px);
+            box-shadow: 0 0px 0 #0056D2;
+        }
+
+        .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: .95rem;
+            font-weight: 600;
+            font-family: inherit
+        }
+
+        .header-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-size: .85rem;
+            font-weight: 700;
+            color: var(--gulu-dark);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.6);
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .header-link:hover {
+            background: #fff;
+            border-color: var(--gulu);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: .95rem;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%);
+            border: none;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+            transition: transform 0.1s ease;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .back-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* ============ LAYOUT ============ */
+        .page-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 30px;
+            padding: 30px 40px;
+        }
+
+        /* Sidebar */
+        .sidebar-box {
+            background: var(--card-glass);
+            border: 1px solid #fff;
+            border-radius: 24px;
+            padding: 24px;
+            position: sticky;
+            top: 100px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .sidebar-box h3 {
+            font-size: .85rem;
+            font-weight: 800;
+            color: var(--gulu-dark);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            opacity: 0.6;
+            cursor: pointer;
+            transition: opacity 0.15s, background 0.15s;
+            font-family: inherit;
+            font-size: .9rem;
+            font-weight: 700
+        }
+
+        .filter-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-btn.active {
+            opacity: 1;
+            background: #fff;
+            color: var(--gulu);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--gulu-l);
+        }
+
+        /* Results area */
+        .results-header {
+            margin-bottom: 24px;
+        }
+
+        .result-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 800;
+            color: var(--gulu);
+            background: #fff;
+            border: 1px solid var(--gulu-l);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            margin-bottom: 12px
+        }
+
+        .results-title {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-main);
+        }
+
+        .results-title .query {
+            color: var(--gulu)
+        }
+
+        /* Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px
+        }
+
+        .result-card {
+            background: var(--card-glass);
+            border: 1px solid #fff;
+            border-radius: 20px;
+            padding: 16px;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .result-card:hover {
+            transform: translateY(-4px);
+            background: #fff;
+            border-color: var(--gulu-l);
+            box-shadow: 0 12px 24px rgba(90, 154, 181, 0.1);
+        }
+
+        .card-preview {
+            aspect-ratio: 16/10;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .card-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-meta {
+            font-size: .8rem;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.35);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-badge {
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: .7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* No results */
+        .no-results {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .no-results img {
+            width: 120px;
+            border-radius: 50%;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+        }
+
+        .no-results h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main)
+        }
+
+        .no-results p {
+            color: rgba(0, 0, 0, 0.4);
+            max-width: 400px;
+            font-weight: 600;
+        }
+
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 18px;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+            transition: transform 0.15s ease;
+        }
+
+        .back-home:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Toast */
+        .gulu-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 24px;
+            background: #fff;
+            border-radius: 20px;
+            border: 1px solid var(--gulu-l);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .gulu-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .gulu-toast img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid var(--gulu-l);
+        }
+
+        .toast-text {
+            font-size: .95rem;
+            font-weight: 800;
+            color: var(--text-main)
+        }
+
+        .toast-sub {
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--gulu);
+        }
+
+        @media(max-width: 1024px) {
+            .page-content {
+                padding: 20px 24px;
+                gap: 20px;
+            }
+        }
+
+        @media(max-width: 850px) {
+            .page-content {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+
+            .sidebar-box {
+                position: static;
+                padding: 12px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .sidebar-box h3 {
+                margin-bottom: 0;
+            }
+
+            /* Make filters horizontally scrollable on mobile */
+            .sidebar-box .filter-container {
+                display: flex;
+                overflow-x: auto;
+                gap: 8px;
+                padding-bottom: 8px;
+                scrollbar-width: none;
+            }
+            .sidebar-box .filter-container::-webkit-scrollbar {
+                display: none;
+            }
+            .filter-btn {
+                white-space: nowrap;
+                width: auto;
+                padding: 8px 16px;
+            }
+
+            .results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 12px;
+            }
+
+            .header-inner {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            
+            .header-search {
+                order: 3;
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
+            .results-title {
+                font-size: 1.5rem;
+            }
+            .subject-filter-wrapper select {
+                width: 100%;
+                min-width: 100%;
+            }
+        }
+
+        @media(max-width: 480px) {
+            .header {
+                padding: 10px 16px;
+            }
+            .page-content {
+                padding: 12px;
+            }
+            .back-btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+            .results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+            .card-title {
+                font-size: 0.9rem;
+            }
+            .card-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+            .hide-mobile {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated background -->
+    <div class="bg-container">
+        <img src="/static/videos/fondo.webp" alt="" class="bg-webp" aria-hidden="true" />
+    </div>
+    <div class="bg-blur-gradient"></div>
+
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+                <span>gulugulu</span>
+            </a>
+            <form action="/results" method="GET" class="header-search">
+                <span class="material-symbols-outlined"
+                    style="font-size:22px;color:var(--gulu);opacity:0.6">search</span>
+                <input name="q" value="{{ query }}" placeholder="Busca de nuevo..." />
+                <input type="hidden" name="grade" value="{{ grade }}" />
+                <input type="hidden" name="subject" value="{{ subject }}" id="hiddenSubject" />
+            </form>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <button onclick="toggleFullScreen()" class="header-link" style="cursor: pointer; font-family: inherit;">
+                    <span class="material-symbols-outlined" id="fullscreenIcon"
+                        style="font-size:18px;font-variation-settings:'FILL' 0,'wght' 400">fullscreen</span>
+                    <span id="fullscreenText" class="hide-mobile">Pantalla Completa</span>
+                </button>
+                <a href="/" class="back-btn">
+                    <span class="material-symbols-outlined" style="font-size:18px">home</span>
+                    <span class="hide-mobile">Inicio</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-content">
+        <aside class="sidebar">
+            <div class="sidebar-box">
+                <h3><span class="material-symbols-outlined" style="font-size:18px">filter_list</span> Filtrar</h3>
+                <div class="filter-container">
+                    <button class="filter-btn active" data-filter="all" onclick="applyFilter('all',this)">
+                        <span class="material-symbols-outlined" style="color:#f97316">grid_view</span> Todo
+                    </button>
+                    <button class="filter-btn" data-filter="image" onclick="applyFilter('image',this)">
+                        <span class="material-symbols-outlined" style="color:#3b82f6">image</span> Fotos
+                    </button>
+                    <button class="filter-btn" data-filter="video" onclick="applyFilter('video',this)">
+                        <span class="material-symbols-outlined" style="color:#a855f7">movie</span> Videos
+                    </button>
+                    <button class="filter-btn" data-filter="document" onclick="applyFilter('document',this)">
+                        <span class="material-symbols-outlined" style="color:#10b981">description</span> Documentos
+                    </button>
+                    <button class="filter-btn" data-filter="audio" onclick="applyFilter('audio',this)">
+                        <span class="material-symbols-outlined" style="color:#ec4899">music_note</span> Música
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <div class="results-area">
+            <div class="results-header" style="display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                <div>
+                    <div class="result-badge">
+                        <img src="/static/images/gulu-icon.jpeg" alt=""
+                            style="width:16px; height:16px; border-radius:50%;" />
+                        <span id="badgeText">Buscando...</span>
+                    </div>
+                    <h2 class="results-title">
+                        {% if query %}
+                        Resultados para <span class="query">'{{ query }}'</span>
+                        {% elif grade != 'all' %}
+                        Archivos de <span class="query">{{ grade }}</span>
+                        {% else %}
+                        Todos los archivos
+                        {% endif %}
+                    </h2>
+                </div>
+                
+                <div class="subject-filter-wrapper" style="margin-bottom: 5px;">
+                    <label for="subjectSelect" style="display: block; font-size: 11px; font-weight: 800; color: var(--gulu); text-transform: uppercase; margin-bottom: 6px; margin-left: 4px;">Filtrar por Materia</label>
+                    <select id="subjectSelect" onchange="applySubjectFilter(this.value)" style="padding: 12px 24px; border-radius: 16px; border: 3px solid var(--gulu); background: white; font-family: inherit; font-weight: 800; color: var(--gulu-dark); cursor: pointer; outline: none; box-shadow: 0 6px 0 var(--gulu); transition: all 0.2s; min-width: 220px;">
+                        <option value="all">Todas las materias</option>
+                        <option value="Matemáticas" {% if subject == 'Matemáticas' %}selected{% endif %}>Matemáticas</option>
+                        <option value="Lengua Castellana" {% if subject == 'Lengua Castellana' %}selected{% endif %}>Lengua Castellana</option>
+                        <option value="Ciencias Naturales" {% if subject == 'Ciencias Naturales' %}selected{% endif %}>Ciencias Naturales</option>
+                        <option value="Ciencias Sociales" {% if subject == 'Ciencias Sociales' %}selected{% endif %}>Ciencias Sociales</option>
+                        <option value="Inglés" {% if subject == 'Inglés' %}selected{% endif %}>Inglés</option>
+                        <option value="Educación Física" {% if subject == 'Educación Física' %}selected{% endif %}>Educación Física</option>
+                        <option value="Ética y Valores" {% if subject == 'Ética y Valores' %}selected{% endif %}>Ética y Valores</option>
+                        <option value="Educación Artística" {% if subject == 'Educación Artística' %}selected{% endif %}>Educación Artística</option>
+                        <option value="Tecnología e Informática" {% if subject == 'Tecnología e Informática' %}selected{% endif %}>Tecnología e Informática</option>
+                        <option value="Religión" {% if subject == 'Religión' %}selected{% endif %}>Religión</option>
+                        <option value="Otro" {% if subject == 'Otro' %}selected{% endif %}>Otro</option>
+                    </select>
+                </div>
+            </div>
+            <div class="results-grid" id="resultsGrid"></div>
+            <div class="no-results" id="noResults">
+                <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+                <h3>¡Ups! Gulu no encontró nada 🐧</h3>
+                <p>Prueba con otras palabras, tal vez algo más sencillo como <strong
+                        style="color:var(--gulu)">naturaleza</strong> o <strong
+                        style="color:var(--gulu)">ciencia</strong>.</p>
+                <a href="/" class="back-home">🚀 Volver al Inicio</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="gulu-toast" id="guluToast">
+        <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+        <div>
+            <div class="toast-text" id="toastText">¡Datos encontrados!</div>
+            <div class="toast-sub">Gulu encontró tesoros 📁</div>
+        </div>
+    </div>
+
+    <script>
+        const query = "{{ query }}";
+        const initialGrade = "{{ grade }}";
+        const initialSubject = "{{ subject }}";
+        const grid = document.getElementById('resultsGrid');
+        const badge = document.getElementById('badgeText');
+        const noResults = document.getElementById('noResults');
+        const toast = document.getElementById('guluToast');
+        let currentFilter = 'all';
+        let currentGrade = initialGrade;
+        let currentSubject = initialSubject;
+        let toastTimer = null;
+
+        const typeStyles = {
+            image: { icon: 'image', bg: 'rgba(59,130,246,0.08)', color: '#3b82f6' },
+            video: { icon: 'movie', bg: 'rgba(168,85,247,0.08)', color: '#a855f7' },
+            audio: { icon: 'music_note', bg: 'rgba(236,72,153,0.08)', color: '#ec4899' },
+            pdf: { icon: 'picture_as_pdf', bg: 'rgba(239,68,68,0.08)', color: '#ef4444' },
+            word: { icon: 'description', bg: 'rgba(59,130,246,0.08)', color: '#3b82f6' },
+            text: { icon: 'article', bg: 'rgba(148,163,184,0.08)', color: '#94a3b8' },
+            file: { icon: 'draft', bg: 'rgba(148,163,184,0.08)', color: '#94a3b8' }
+        };
+
+        function showToast(text) {
+            document.getElementById('toastText').textContent = text;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function() {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        async function fetchResults(filter) {
+            try {
+                const url = `/search?q=${encodeURIComponent(query)}&filter=${filter}&grade=${encodeURIComponent(currentGrade)}&subject=${encodeURIComponent(currentSubject)}`;
+                const r = await fetch(url);
+                const data = await r.json();
+                renderResults(data);
+            } catch (e) {
+                grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:50px;">Error al buscar...</p>';
+            }
+        }
+
+        function renderResults(results) {
+            if (!results.length) {
+                grid.innerHTML = '';
+                noResults.style.display = 'flex';
+                badge.textContent = 'Sin resultados';
+                return;
+            }
+            noResults.style.display = 'none';
+            badge.textContent = `¡${results.length} resultado${results.length > 1 ? 's' : ''} encontrados!`;
+            showToast('¡Gulu encontró tesoros!');
+
+            // Build all cards as a document fragment for a single DOM insertion
+            var fragment = document.createDocumentFragment();
+            results.forEach(function(item) {
+                var s = typeStyles[item.type] || typeStyles.file;
+                var card = document.createElement('a');
+                card.href = '/files/' + item.path;
+                card.target = '_blank';
+                card.className = 'result-card';
+
+                var preview;
+                if (item.type === 'image') {
+                    preview = '<div class="card-preview"><img src="/files/' + item.path + '" alt="' + item.name + '" onerror="this.parentElement.innerHTML=\'<span class=\\\'material-symbols-outlined\\\' style=\\\'font-size:48px;color:' + s.color + '\\\'>' + s.icon + '</span>\'"/></div>';
+                } else {
+                    preview = '<div class="card-preview" style="background:' + s.bg + '"><span class="material-symbols-outlined" style="font-size:48px;color:' + s.color + '">' + s.icon + '</span></div>';
+                }
+
+                card.innerHTML = preview +
+                    '<div class="card-title">' + item.name + '</div>' +
+                    '<div class="card-meta">' +
+                        '<div style="display:flex; flex-direction:column; gap:2px;">' +
+                            '<span style="font-size:10px; color:var(--gulu); font-weight:800;">📚 ' + item.grade + '</span>' +
+                            '<span>' + item.type_label + '</span>' +
+                        '</div>' +
+                        '<span class="card-badge" style="background:' + s.bg + '; color:' + s.color + '">' + (item.ext || '') + '</span>' +
+                    '</div>';
+                fragment.appendChild(card);
+            });
+            grid.innerHTML = '';
+            grid.appendChild(fragment);
+        }
+
+        function applyFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            fetchResults(filter);
+        }
+
+        function applySubjectFilter(subject) {
+            currentSubject = subject;
+            document.getElementById('hiddenSubject').value = subject;
+            fetchResults(currentFilter);
+        }
+
+        if (query || currentGrade !== 'all' || currentSubject !== 'all') fetchResults(currentFilter);
+    </script>
+</body>
+
+</html>

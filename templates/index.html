@@ -8,7 +8,7 @@
     <link rel="icon" href="/static/images/icono.png" type="image/png">
     <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
     <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
-    <script src="/static/js/gsap.min.js"></script>
+    <script src="/static/js/fullscreen.js"></script>
     <style>
         /* ============ BASE ============ */
         *,
@@ -26,7 +26,7 @@
             --gulu-accent: #6366f1;
             --text-main: #1b351a;
             --card-glass: rgba(255, 255, 255, 0.65);
-            --header-glass: rgba(255, 255, 255, 0.7);
+            --header-glass: rgba(255, 255, 255, 0.85);
         }
 
         body {
@@ -36,13 +36,13 @@
             overflow-x: hidden;
             min-height: 100vh;
         }
-        
         @media(min-width: 1024px) {
-            body {
+            body.home-page {
                 overflow: hidden; /* Avoids right scrollbar when suggestion box appears */
             }
         }
-
+        ...
+        <body class="home-page">
         a {
             text-decoration: none;
             color: inherit
@@ -66,6 +66,9 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            will-change: transform;
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
 
         .bg-blur-gradient {
@@ -82,11 +85,9 @@
             top: 0;
             z-index: 100;
             padding: 12px 24px;
-            backdrop-filter: blur(15px) saturate(180%);
             background: var(--header-glass);
             border-bottom: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
-            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
 
         .header-inner {
@@ -101,11 +102,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            transition: transform 0.3s ease;
-        }
-
-        .logo:hover {
-            transform: scale(1.02);
         }
 
         .logo img {
@@ -114,7 +110,7 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         }
 
         .logo span {
@@ -136,15 +132,12 @@
             font-weight: 700;
             color: var(--gulu-dark);
             border: 1px solid rgba(0, 0, 0, 0.05);
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(5px);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(255, 255, 255, 0.6);
+            transition: background 0.15s ease, border-color 0.15s ease;
         }
 
         .header-link:hover {
             background: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
             border-color: var(--gulu);
         }
 
@@ -167,19 +160,6 @@
             align-items: flex-start;
             text-align: left;
             gap: 24px;
-            animation: fadeIn 1s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .badge {
@@ -193,8 +173,7 @@
             color: #111827;
             background: #fff;
             border: none;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), inset 0 -3px 6px rgba(0, 0, 0, 0.04);
-            opacity: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
             margin-bottom: 30px;
         }
 
@@ -203,22 +182,7 @@
             height: 12px;
             border-radius: 50%;
             background: #3B82F6;
-            box-shadow: 0 0 10px #3B82F6;
-            animation: pulse 2s ease-in-out infinite
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: .5;
-                transform: scale(1)
-            }
-
-            50% {
-                opacity: 1;
-                transform: scale(1.3)
-            }
+            box-shadow: 0 0 8px #3B82F6;
         }
 
         /* Split text title */
@@ -230,29 +194,11 @@
             letter-spacing: -0.04em;
         }
 
-        .hero-title .word {
-            display: inline-block;
-            overflow: hidden;
-            vertical-align: top;
-            margin-right: 14px;
-            padding-bottom: 10px;
-            /* Fix clipping of descenders */
-        }
-
-        .hero-title .char {
-            display: inline-block;
-            opacity: 0;
-            transform: translateY(100%) rotateX(-80deg);
-            will-change: transform, opacity;
-            color: #0056D2;
-        }
-
         /* ============ SEARCH BAR ============ */
         .search-wrapper {
             position: relative;
             width: 100%;
             max-width: 650px;
-            opacity: 0;
             z-index: 10;
         }
 
@@ -265,7 +211,7 @@
             background: #fff;
             border: 4px solid #0056D2;
             box-shadow: 0 6px 0 #0056D2;
-            transition: all .2s cubic-bezier(.16, 1, .3, 1);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
             margin-bottom: 24px;
         }
 
@@ -312,13 +258,12 @@
             font-size: 1.1rem;
             color: #fff;
             background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%);
-            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.3), inset 0 -3px 6px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(37, 99, 235, 0.3);
-            transition: all .2s;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+            transition: transform 0.1s ease;
         }
 
         .search-btn:hover {
-            transform: translateY(-1px) scale(1.02);
-            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(37, 99, 235, 0.4);
+            transform: scale(1.02);
         }
 
         .search-btn:active {
@@ -331,7 +276,7 @@
             top: calc(100% + 4px);
             left: 0;
             right: 0;
-            background: #ffffff !important;
+            background: #ffffff;
             border: 2px solid #0056D2;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -339,8 +284,6 @@
             display: none;
             z-index: 1000;
             padding: 4px;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
         }
 
         .autocomplete.show {
@@ -355,10 +298,8 @@
             cursor: pointer;
             border-radius: 8px;
             margin-bottom: 2px;
-            background: #ffffff !important;
-            transition: background 0.2s;
-            opacity: 1 !important;
-            filter: none !important;
+            background: #ffffff;
+            transition: background 0.1s;
         }
         
         .ac-item:last-child {
@@ -366,7 +307,7 @@
         }
 
         .ac-item:hover {
-            background: #f0f7ff !important;
+            background: #f0f7ff;
         }
 
         .ac-item .ac-icon {
@@ -383,12 +324,11 @@
         .ac-item .ac-text {
             font-size: 1rem;
             font-weight: 600;
-            color: #111827 !important;
+            color: #111827;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             flex: 1;
-            opacity: 1 !important;
         }
 
         /* ============ CATEGORIES ============ */
@@ -397,7 +337,6 @@
             flex-wrap: wrap;
             gap: 16px;
             justify-content: flex-start;
-            opacity: 0;
             max-width: 700px;
             padding-bottom: 20px;
         }
@@ -414,52 +353,16 @@
             background: #ffffff;
             border: 3px solid transparent;
             cursor: pointer;
-            transition: all .25s cubic-bezier(.34, 1.56, .64, 1);
+            transition: transform 0.1s ease;
             position: relative;
-            /* Claymorphism base shadow for fluffiness */
-            box-shadow: 0 8px 0 rgba(0,0,0,0.05), inset 0 -3px 6px rgba(0,0,0,0.04);
-        }
-
-        /* Motion lines */
-        .cat-pill::before,
-        .cat-pill::after {
-            content: '';
-            position: absolute;
-            width: 15px;
-            height: 3.5px;
-            background: currentColor;
-            border-radius: 4px;
-            opacity: 0.6;
-            transition: transform 0.3s cubic-bezier(.34, 1.56, .64, 1);
-        }
-
-        .cat-pill::before {
-            top: -12px;
-            left: 12px;
-            transform: rotate(-15deg) scale(0.8);
-        }
-
-        .cat-pill::after {
-            bottom: -12px;
-            right: 12px;
-            transform: rotate(-15deg) scale(0.8);
-        }
-
-        .cat-pill:hover::before {
-            transform: rotate(-25deg) translateX(-6px) scale(1);
-        }
-
-        .cat-pill:hover::after {
-            transform: rotate(-25deg) translateX(6px) scale(1);
         }
 
         .cat-pill:hover {
-            transform: translateY(-4px) scale(1.02);
+            transform: translateY(-3px);
         }
 
         .cat-pill:active {
-            transform: translateY(4px) scale(0.98) !important;
-            box-shadow: 0 0px 0 transparent, inset 0 3px 8px rgba(0,0,0,0.1) !important;
+            transform: translateY(2px) scale(0.98) !important;
         }
 
         .cat-pill .pill-icon {
@@ -470,10 +373,6 @@
             align-items: center;
             justify-content: center;
             font-size: 20px;
-        }
-
-        .cat-pill:hover .pill-icon {
-            transform: rotate(8deg) scale(1.1);
         }
 
         /* Primero */
@@ -542,8 +441,7 @@
             color: rgba(0, 0, 0, 0.4);
             font-size: .8rem;
             font-weight: 700;
-            backdrop-filter: blur(5px);
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.3);
         }
 
         /* ============ RESPONSIVE ============ */
@@ -609,6 +507,9 @@
                 font-size: 0.75rem;
                 padding: 10px;
             }
+            .hide-mobile {
+                display: none;
+            }
         }
 
         /* ============ MINIGAMES BUTTON ============ */
@@ -633,8 +534,8 @@
             font-size: 1.15rem;
             text-decoration: none;
             border: 4px solid #4F46E5;
-            box-shadow: 0 8px 0 #4338CA, 0 15px 30px rgba(99, 102, 241, 0.3);
-            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 0 #4338CA, 0 12px 20px rgba(99, 102, 241, 0.2);
+            transition: transform 0.1s ease;
             cursor: pointer;
             white-space: nowrap;
         }
@@ -644,14 +545,12 @@
         }
 
         .minigames-btn:hover {
-            transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 12px 0 #4338CA, 0 20px 40px rgba(99, 102, 241, 0.4);
-            background: linear-gradient(135deg, var(--gulu-accent) 0%, var(--gulu) 100%);
+            transform: translateY(-3px);
         }
 
         .minigames-btn:active {
             transform: translateY(4px) scale(0.98);
-            box-shadow: 0 4px 0 #4338CA, 0 5px 15px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 4px 0 #4338CA, 0 5px 10px rgba(99, 102, 241, 0.15);
         }
 
         @media (max-width: 768px) {
@@ -671,11 +570,8 @@
 
 
 
-
     <!-- Animated background -->
-    <div class="bg-container">
-        <img src="/static/videos/fondo.webp" alt="" class="bg-webp" aria-hidden="true" />
-    </div>
+    <div class="bg-container" style="background: #f0f4f8;"><img src="/static/videos/fondo.webp" alt="" class="bg-webp" aria-hidden="true" loading="eager" /></div>
 
     <!-- Blur/Contrast overlay to ensure readability -->
     <div class="bg-blur-gradient"></div>
@@ -684,14 +580,21 @@
     <header class="header">
         <div class="header-inner">
             <a href="/" class="logo">
-                <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+                <img src="/static/images/icono.png" alt="Gulu" />
                 <span>gulugulu</span>
             </a>
-            <a href="/admin" class="header-link">
-                <span class="material-symbols-outlined"
-                    style="font-size:16px;font-variation-settings:'FILL' 0,'wght' 400">lock</span>
-                Maestros
-            </a>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <button onclick="toggleFullScreen()" class="header-link" style="cursor: pointer; font-family: inherit;">
+                    <span class="material-symbols-outlined" id="fullscreenIcon"
+                        style="font-size:18px;font-variation-settings:'FILL' 0,'wght' 400">fullscreen</span>
+                    <span id="fullscreenText" class="hide-mobile">Pantalla Completa</span>
+                </button>
+                <a href="/admin" class="header-link">
+                    <span class="material-symbols-outlined"
+                        style="font-size:16px;font-variation-settings:'FILL' 0,'wght' 400">lock</span>
+                    Maestros
+                </a>
+            </div>
         </div>
     </header>
 
@@ -703,11 +606,7 @@
 
             <!-- Split Text Title -->
             <h1 class="hero-title" id="heroTitle">
-                <span class="word" data-text="¿Qué"></span>
-                <span class="word" data-text="vamos"></span>
-                <span class="word" data-text="a"></span>
-                <span class="word" data-text="buscar"></span>
-                <span class="word" data-text="hoy?"></span>
+                ¿Qué vamos a buscar hoy?
             </h1>
 
             <!-- Search -->
@@ -763,113 +662,69 @@
     <div class="footer">🐧 Gulu busca en tu Biblioteca Escolar</div>
 
     <script>
-        // =============================================
-        // GULUGULU ANIMATION ENGINE
-        // =============================================
+        (function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchForm = document.getElementById('searchWrapper');
+            const acDropdown = document.getElementById('acDropdown');
 
-        const searchInput = document.getElementById('searchInput');
-        const searchForm = document.getElementById('searchWrapper');
-        const acDropdown = document.getElementById('acDropdown');
+            if (!searchInput || !acDropdown) return;
 
-        // ===== 1. SPLIT TEXT ANIMATION =====
-        function splitTextReveal() {
-            document.querySelectorAll('.hero-title .word').forEach(word => {
-                const text = word.dataset.text;
-                word.innerHTML = '';
-                text.split('').forEach(ch => {
-                    const span = document.createElement('span');
-                    span.className = 'char';
-                    span.textContent = ch === ' ' ? '\u00A0' : ch;
-                    word.appendChild(span);
+            let debounce;
+            window.pickSuggestion = (name) => {
+                const targetInput = document.getElementById('searchInput');
+                const targetDropdown = document.getElementById('acDropdown');
+                if (targetInput) {
+                    targetInput.value = name.substring(0, name.lastIndexOf('.')) || name;
+                }
+                if (targetDropdown) {
+                    targetDropdown.classList.remove('show');
+                }
+                const queryVal = targetInput ? targetInput.value : name;
+                const searchUrl = `/results?q=${encodeURIComponent(queryVal)}`;
+                if (typeof navigateSpa === 'function') {
+                    navigateSpa(searchUrl);
+                } else {
+                    window.location.href = searchUrl;
+                }
+            };
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(debounce);
+                const q = e.target.value.trim();
+                if (q.length < 2) { acDropdown.classList.remove('show'); acDropdown.innerHTML = ''; return; }
+
+                debounce = setTimeout(async () => {
+                    try {
+                        const r = await fetch(`/autocomplete?q=${encodeURIComponent(q)}`);
+                        const items = await r.json();
+                        if (!items.length) { acDropdown.classList.remove('show'); return; }
+                        acDropdown.innerHTML = items.slice(0, 3).map(s =>
+                            `<div class="ac-item" onclick="pickSuggestion('${s.replace(/'/g, "\\'")}')">
+                                <div class="ac-icon"><span class="material-symbols-outlined" style="font-size:20px">search</span></div>
+                                <span class="ac-text">${s}</span>
+                            </div>`
+                        ).join('');
+                        acDropdown.classList.add('show');
+                    } catch (e) { acDropdown.classList.remove('show'); }
+                }, 100);
+            });
+
+            if (!window._guluDocumentClickListenerAdded) {
+                document.addEventListener('click', e => {
+                    const activeDropdown = document.getElementById('acDropdown');
+                    if (activeDropdown && !e.target.closest('.search-wrapper')) {
+                        activeDropdown.classList.remove('show');
+                    }
                 });
-            });
-
-            gsap.to('.hero-title .char', {
-                opacity: 1,
-                y: 0,
-                rotateX: 0,
-                duration: 0.6,
-                stagger: 0.03,
-                ease: "back.out(1.5)",
-                delay: 0.8,
-            });
-        }
-
-        // ===== 3. MAGNETIC BUTTON =====
-        function initMagneticButton() {
-            const btn = document.getElementById('searchBtn');
-            const bar = document.getElementById('searchBar');
-
-            bar.addEventListener('mousemove', (e) => {
-                const rect = btn.getBoundingClientRect();
-                const cx = rect.left + rect.width / 2;
-                const cy = rect.top + rect.height / 2;
-                const dx = (e.clientX - cx) * 0.15;
-                const dy = (e.clientY - cy) * 0.15;
-                gsap.to(btn, { x: dx, y: dy, duration: 0.4, ease: "power3.out" });
-            });
-            bar.addEventListener('mouseleave', () => {
-                gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1,.4)" });
-            });
-        }
-
-        // ===== 4. ENTRANCE TIMELINE =====
-        function playEntrance() {
-            const tl = gsap.timeline();
-
-            tl.fromTo('#badge', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .5, ease: "power3.out" }, 0.5)
-                .add(splitTextReveal, 0.3)
-                .fromTo('#searchWrapper', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .6, ease: "power3.out" }, 1.2)
-                .fromTo('#cats', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .5 }, 1.5)
-                .fromTo('.cat-pill', { opacity: 0, y: 10, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .4, stagger: .08, ease: "back.out(1.3)" }, 1.6);
-        }
-
-        // Autocomplete
-        let debounce;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(debounce);
-            const q = e.target.value.trim();
-            if (q.length < 2) { acDropdown.classList.remove('show'); acDropdown.innerHTML = ''; return; }
-
-            debounce = setTimeout(async () => {
-                try {
-                    const r = await fetch(`/autocomplete?q=${encodeURIComponent(q)}`);
-                    const items = await r.json();
-                    if (!items.length) { acDropdown.classList.remove('show'); return; }
-                    acDropdown.innerHTML = items.slice(0, 3).map(s =>
-                        `<div class="ac-item" onclick="pickSuggestion('${s.replace(/'/g, "\\'")}')">
-                    <div class="ac-icon"><span class="material-symbols-outlined" style="font-size:20px">search</span></div>
-                    <span class="ac-text">${s}</span>
-                </div>`
-                    ).join('');
-                    acDropdown.classList.add('show');
-
-                } catch (e) { acDropdown.classList.remove('show'); }
-            }, 200);
-        });
-
-        function pickSuggestion(name) {
-            searchInput.value = name.substring(0, name.lastIndexOf('.')) || name;
-            acDropdown.classList.remove('show');
-            searchForm.submit();
-        }
-
-        document.addEventListener('click', e => { if (!e.target.closest('.search-wrapper')) acDropdown.classList.remove('show'); });
-
-        // Search shake on empty
-        searchForm.addEventListener('submit', function (e) {
-            if (!searchInput.value.trim()) {
-                e.preventDefault();
-                gsap.to('#searchBar', { x: -6, duration: .08, repeat: 5, yoyo: true, ease: "power2.inOut", onComplete: () => gsap.set('#searchBar', { x: 0 }) });
-                return;
+                window._guluDocumentClickListenerAdded = true;
             }
-        });
 
-
-        // ===== INIT =====
-        initMagneticButton();
-        playEntrance();
+            if (searchForm) {
+                searchForm.addEventListener('submit', function (e) {
+                    if (!searchInput.value.trim()) { e.preventDefault(); }
+                });
+            }
+        })();
     </script>
 </body>
-
 </html>

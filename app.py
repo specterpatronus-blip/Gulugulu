@@ -7,6 +7,9 @@ import datetime
 import time
 from werkzeug.security import generate_password_hash, check_password_hash
 from search_engine import SearchEngine
+from core.search.search_engine import SearchEngineV2
+from core.knowledge.graph_engine import KnowledgeGraphEngine, RecommendationEngine, PathBuilder
+
 app = Flask(__name__)
 app.secret_key = 'explorador_escolar_secret_2024'
 BD_PATH = os.path.join(os.getcwd(), 'BD')
@@ -39,6 +42,10 @@ backup_thread.start()
 
 # Initialize Search Engine
 search_engine = SearchEngine(BD_PATH)
+search_engine_v2 = SearchEngineV2(DB_PATH)
+graph_engine = KnowledgeGraphEngine(DB_PATH)
+recommender = RecommendationEngine(DB_PATH)
+path_builder = PathBuilder(DB_PATH)
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -192,54 +199,37 @@ def juego(grado, nivel):
 @app.route('/search')
 def search():
     query = request.args.get('q', '')
-    file_filter = request.args.get('filter', 'all')
     grade_filter = request.args.get('grade', 'all')
     subject_filter = request.args.get('subject', 'all')
+    category_filter = request.args.get('filter', 'all')
     
-    # If no query but grade or subject filter, get all files
-    if not query and (grade_filter != 'all' or subject_filter != 'all'):
-        results = search_engine.index
-    elif not query:
-        return jsonify([])
-    else:
-        results = search_engine.search(query, file_filter)
+    filters = {
+        'grade': grade_filter,
+        'subject': subject_filter,
+        'category': category_filter
+    }
     
-    # Attach and filter by metadata
-    metadata_map = get_file_metadata_map()
+    # Obtener resultados enriquecidos (incluye internal_path y resource_types)
+    results = search_engine_v2.search(query, filters)
+    
     final_results = []
-    
     for item in results:
-        meta = metadata_map.get(item['name'], {
-            'uploader_name': 'Desconocido', 
-            'upload_date': '-', 
-            'grade': '-', 
-            'subject': '-'
-        })
-        
-        # Filter by grade if specified
-        if grade_filter != 'all' and meta['grade'] != grade_filter:
-            continue
-            
-        # Filter by subject if specified
-        if subject_filter != 'all' and meta['subject'] != subject_filter:
-            continue
-            
-        # Filter by file type if specified (especially for the case without search query)
-        if file_filter != 'all':
-            if file_filter == 'image' and item['type'] != 'image':
-                continue
-            elif file_filter == 'video' and item['type'] != 'video':
-                continue
-            elif file_filter == 'audio' and item['type'] != 'audio':
-                continue
-            elif file_filter == 'document' and item['type'] not in ['pdf', 'word', 'text', 'presentation', 'spreadsheet']:
-                continue
-            
-        # Combine
-        res_item = item.copy()
-        res_item.update(meta)
-        if 'type_label' not in res_item:
-            res_item['type_label'] = search_engine.get_type_label(res_item['type'])
+        ext = os.path.splitext(item['internal_path'])[1].lower().replace('.', '').upper() if item['internal_path'] else ''
+        res_item = {
+            'name': item['title'],
+            'title': item['title'],
+            'pedagogical_id': item['pedagogical_id'],
+            'description': item['description'],
+            'subject': item['subject_name'],
+            'grade': item['grade_name'],
+            'type': item['resource_types'][0] if item['resource_types'] else 'file',
+            'type_label': item['resource_types'][0].capitalize() if item['resource_types'] else 'Archivo',
+            'snippet': item['snippet_text'],
+            'thumbnail': item['thumbnail'],
+            'path': item['internal_path'],
+            'filename': os.path.basename(item['internal_path']) if item['internal_path'] else None,
+            'ext': ext
+        }
         final_results.append(res_item)
         
     return jsonify(final_results)
@@ -253,20 +243,73 @@ def results():
 
 @app.route('/autocomplete')
 def autocomplete():
-    query = request.args.get('q', '').lower().strip()
+    query = request.args.get('q', '').strip()
     if not query or len(query) < 2:
         return jsonify([])
     
-    filenames = search_engine.get_all_filenames()
-    suggestions = []
-    for name in filenames:
-        name_normalized = os.path.splitext(name)[0].lower().replace('_', ' ').replace('-', ' ')
-        if query in name_normalized or query in name.lower():
-            suggestions.append(name)
-    return jsonify(suggestions[:8])
+    suggestions = search_engine_v2.autocomplete(query)
+    return jsonify([s['text'] for s in suggestions])
+
+# --- SEARCH API V2 (Hybrid & Pedagogical) ---
+
+@app.route('/api/v2/search')
+def search_v2():
+    query = request.args.get('q', '')
+    filters = {
+        'grade': request.args.get('grade'),
+        'subject': request.args.get('subject'),
+        'verified': request.args.get('verified') == 'true'
+    }
+    # Clean filters (remove 'all' or None)
+    filters = {k: v for k, v in filters.items() if v and v != 'all'}
+    
+    results = search_engine_v2.search(query, filters)
+    return jsonify(results)
+
+@app.route('/api/v2/autocomplete')
+def autocomplete_v2():
+    query = request.args.get('q', '')
+    suggestions = search_engine_v2.autocomplete(query)
+    return jsonify(suggestions)
+
+# --- KNOWLEDGE GRAPH API ---
+
+@app.route('/api/v2/related/<int:lo_id>')
+def get_related(lo_id):
+    related = graph_engine.get_related(lo_id)
+    return jsonify(related)
+
+@app.route('/api/v2/prerequisites/<int:lo_id>')
+def get_prerequisites(lo_id):
+    prereqs = graph_engine.get_prerequisites(lo_id)
+    return jsonify(prereqs)
+
+@app.route('/api/v2/recommendations/<int:lo_id>')
+def get_recommendations(lo_id):
+    limit = request.args.get('limit', 5, type=int)
+    recs = recommender.recommend_for_lo(lo_id, limit=limit)
+    return jsonify(recs)
+
+@app.route('/api/v2/paths')
+def list_paths():
+    subject = request.args.get('subject', type=int)
+    grade = request.args.get('grade', type=int)
+    paths = path_builder.list_paths(subject_id=subject, grade_id=grade)
+    return jsonify(paths)
+
+@app.route('/api/v2/paths/<int:path_id>')
+def get_path(path_id):
+    path = path_builder.get_path(path_id)
+    if not path:
+        return jsonify({'error': 'Path not found'}), 404
+    return jsonify(path)
 
 @app.route('/files/<path:filename>')
 def serve_file(filename):
+    # Intentar servir desde el nuevo storage V2 primero
+    if os.path.exists(os.path.join('storage', filename)):
+        return send_from_directory('storage', filename)
+    # Fallback al BD original por compatibilidad
     return send_from_directory(BD_PATH, filename)
 
 @app.route('/admin')
@@ -594,6 +637,14 @@ def restore_backup():
         
         return jsonify({'success': True})
     return jsonify({'error': 'Backup not found'}), 404
+
+@app.after_request
+def add_header(response):
+    # Disable cache for all static resources to avoid browser caching issues in local environments
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 if __name__ == '__main__':
     if not os.path.exists(BD_PATH):

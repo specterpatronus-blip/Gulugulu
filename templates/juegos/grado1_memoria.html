@@ -4,14 +4,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Juego - Gulugulu</title>
+    <title>Memoria Mágica - Gulugulu</title>
     <link rel="icon" href="/static/images/icono.png" type="image/png">
     <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
     <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
 
-    <!-- FRAMEWORKS -->
     <script src="/static/js/vue.global.js"></script>
-    <script src="/static/js/gsap.min.js"></script>
 
     <style>
         /* ============ BASE ============ */
@@ -78,7 +76,7 @@
             top: 0;
             z-index: 100;
             padding: 12px 24px;
-            backdrop-filter: blur(15px) saturate(180%);
+            
             background: var(--header-glass);
             border-bottom: 1px solid rgba(255, 255, 255, 0.4);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
@@ -113,6 +111,7 @@
             background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header-link {
@@ -126,7 +125,7 @@
             color: var(--gulu-dark);
             border: 1px solid rgba(0, 0, 0, 0.05);
             background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(5px);
+            
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -151,7 +150,7 @@
             justify-content: space-between;
             align-items: center;
             background: var(--card-glass);
-            backdrop-filter: blur(20px);
+            
             padding: 20px 30px;
             border-radius: 24px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
@@ -230,6 +229,7 @@
             transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
             transform-style: preserve-3d;
             position: relative;
+            will-change: transform;
         }
 
         .card-container.flipped .card-inner,
@@ -284,8 +284,7 @@
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.85);
             z-index: 1000;
             display: flex;
             align-items: center;
@@ -299,8 +298,9 @@
             text-align: center;
             max-width: 450px;
             width: 90%;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
             position: relative;
+            animation: popIn .25s cubic-bezier(.34,1.56,.64,1) both;
         }
 
         .modal-icon {
@@ -347,10 +347,9 @@
             box-shadow: 0 15px 25px rgba(37, 99, 235, 0.4);
         }
 
-        /* Vue transitions */
         .fade-enter-active,
         .fade-leave-active {
-            transition: opacity 0.5s ease;
+            transition: opacity 0.2s ease;
         }
 
         .fade-enter-from,
@@ -358,6 +357,10 @@
             opacity: 0;
         }
 
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(.85) translateY(20px); }
+            to   { opacity: 1; transform: scale(1)  translateY(0); }
+        }
         @media(max-width:600px) {
             .game-top-bar {
                 flex-direction: column;
@@ -374,7 +377,17 @@
                 flex: 1;
             }
         }
-    </style>
+    
+        @media (max-width: 768px) {
+            .hide-mobile {
+                display: none;
+            }
+        }
+        [v-cloak] {
+            display: none !important;
+        }
+</style>
+    <script src="/static/js/fullscreen.js"></script>
 </head>
 
 <body>
@@ -382,17 +395,25 @@
     <div class="bg-blur-gradient"></div>
 
     <header class="header">
-        <a href="/" class="logo">
-            <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <button onclick="toggleFullScreen()" class="header-link" style="cursor: pointer; font-family: inherit; background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0, 0, 0, 0.05);">
+                <span class="material-symbols-outlined" id="fullscreenIcon"
+                    style="font-size:18px;font-variation-settings:'FILL' 0,'wght' 400">fullscreen</span>
+                <span id="fullscreenText" class="hide-mobile">Pantalla Completa</span>
+            </button>
+<a href="/" class="logo">
+            <img src="/static/images/icono.png" alt="Gulu" />
             <span>gulugulu</span>
         </a>
         <a href="/minijuegos" class="header-link">
             <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
             Grados
         </a>
+        </div>
     </header>
 
-    <div id="game-app">
+    <div id="game-app" v-cloak>
         <div class="game-top-bar">
             <div class="level-info">
                 <h1>Memoria Mágica</h1>
@@ -403,10 +424,7 @@
                     <span>Movimientos</span>
                     <strong>[[ moves ]]</strong>
                 </div>
-                <div class="stat-box highlight">
-                    <span>Tiempo</span>
-                    <strong>[[ formattedTime ]]</strong>
-                </div>
+
             </div>
         </div>
 
@@ -415,9 +433,10 @@
                 :class="{ flipped: card.isFlipped, matched: card.isMatched }" @click="flipCard(index)">
                 <div class="card-inner">
                     <div class="card-front"></div>
-                    <div class="card-back">
-                        <span class="material-symbols-outlined card-icon" :style="{ color: card.color }">[[ card.icon
-                            ]]</span>
+                    <div class="card-face card-back">
+                        <span v-html="GIconEngine.html(GIconEngine.fromEmoji(card.icon), { size: 56, color: card.color })"></span>
+                    </div>
+
                     </div>
                 </div>
             </div>
@@ -429,7 +448,7 @@
                 <div class="modal-content" id="victoryModal">
                     <span class="material-symbols-outlined modal-icon">stars</span>
                     <h2>¡Excelente!</h2>
-                    <p>Completaste el nivel [[ nivel ]] en [[ formattedTime ]] con [[ moves ]] movimientos.</p>
+                    <p>Completaste el nivel [[ nivel ]] con [[ moves ]] movimientos.</p>
 
                     <a v-if="nivel < 10" :href="'/juego/1/' + (nivel + 1)" class="btn-primary">
                         Siguiente Nivel <span class="material-symbols-outlined">arrow_forward</span>
@@ -448,14 +467,12 @@
     </script>
 
     <!-- VUE ENGINE -->
+    <script src="/static/js/game-icons.js"></script>
     <script>
-        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const { createApp, ref, computed, onMounted } = Vue;
 
-        createApp({
-            // Change delimiters to not clash with Flask Jinja2
-            compilerOptions: {
-                delimiters: ['[[', ']]']
-            },
+
+        const app = createApp({
             setup() {
                 const nivel = ref(GAME_LEVEL);
 
@@ -513,15 +530,6 @@
                     }
 
                     cards.value = deck;
-
-                    // Entry animation using GSAP (staggered flip in)
-                    setTimeout(() => {
-                        gsap.fromTo(".card-container",
-                            { opacity: 0, scale: 0.5, y: 30 },
-                            { opacity: 1, scale: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "back.out(1.5)" }
-                        );
-                    }, 100);
-
                     startTimer();
                 };
 
@@ -557,11 +565,6 @@
                             flippedCards = [];
                             isLocked = false;
                             checkWin();
-
-                            // Small bounce effect on match using elements
-                            gsap.to(document.querySelectorAll('.card-container')[idx1], { scale: 1.1, duration: 0.2, yoyo: true, repeat: 1 });
-                            gsap.to(document.querySelectorAll('.card-container')[idx2], { scale: 1.1, duration: 0.2, yoyo: true, repeat: 1 });
-
                         }, 400);
                     } else {
                         // No match
@@ -577,16 +580,7 @@
                 const checkWin = () => {
                     if (cards.value.every(card => card.isMatched)) {
                         clearInterval(timerInterval);
-                        setTimeout(() => {
-                            gameWon.value = true;
-                            // Trigger modal entry bounce
-                            Vue.nextTick(() => {
-                                gsap.fromTo("#victoryModal",
-                                    { scale: 0.5, opacity: 0, rotationX: -30 },
-                                    { scale: 1, opacity: 1, rotationX: 0, duration: 0.6, ease: "back.out(1.5)" }
-                                );
-                            });
-                        }, 600);
+                        setTimeout(() => { gameWon.value = true; }, 400);
                     }
                 };
 
@@ -604,8 +598,9 @@
                     flipCard
                 }
             }
-        }).mount('#game-app');
+        });
+        app.config.compilerOptions.delimiters = ['[[', ']]'];
+        app.mount('#game-app');
     </script>
 </body>
-
 </html>

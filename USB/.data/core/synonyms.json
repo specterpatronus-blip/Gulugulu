@@ -1,0 +1,114 @@
+{
+    "espacio": [
+        "cohete",
+        "astronauta",
+        "planeta",
+        "luna",
+        "estrellas",
+        "galaxia",
+        "universo",
+        "sol",
+        "tierra",
+        "marte"
+    ],
+    "agua": [
+        "rio",
+        "mar",
+        "oceano",
+        "lluvia",
+        "pez",
+        "barco",
+        "lago",
+        "cascada"
+    ],
+    "animales": [
+        "perro",
+        "gato",
+        "leon",
+        "tigre",
+        "elefante",
+        "granja",
+        "selva",
+        "caballo",
+        "vaca",
+        "conejo"
+    ],
+    "escuela": [
+        "profesor",
+        "clase",
+        "tarea",
+        "libro",
+        "lapiz",
+        "cuaderno",
+        "maestro",
+        "colegio"
+    ],
+    "matematicas": [
+        "numeros",
+        "suma",
+        "resta",
+        "multiplicacion",
+        "division",
+        "divisiones",
+        "geometria",
+        "ejercicios"
+    ],
+    "historia": [
+        "guerra",
+        "independencia",
+        "colombia",
+        "cultura",
+        "antiguo",
+        "civilizacion"
+    ],
+    "naturaleza": [
+        "arbol",
+        "planta",
+        "flor",
+        "bosque",
+        "jardin",
+        "campo",
+        "montaña",
+        "rio"
+    ],
+    "ciencias": [
+        "experimento",
+        "laboratorio",
+        "quimica",
+        "fisica",
+        "biologia",
+        "ciencia"
+    ],
+    "musica": [
+        "cancion",
+        "canciones",
+        "instrumento",
+        "guitarra",
+        "piano",
+        "melodia"
+    ],
+    "arte": [
+        "dibujo",
+        "dibujos",
+        "pintura",
+        "color",
+        "colores",
+        "manualidad"
+    ],
+    "lectura": [
+        "cuento",
+        "cuentos",
+        "libro",
+        "fabula",
+        "poema",
+        "leccion"
+    ],
+    "ejercicios": [
+        "tarea",
+        "tareas",
+        "actividad",
+        "practica",
+        "divisiones",
+        "sumas"
+    ]
+}

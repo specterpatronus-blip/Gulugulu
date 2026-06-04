@@ -8,6 +8,7 @@
     <link rel="icon" href="/static/images/icono.png" type="image/png">
     <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
     <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
+    <script src="/static/js/fullscreen.js"></script>
     <style>
         /* ============ BASE ============ */
         *,
@@ -24,8 +25,8 @@
             --gulu-l: #E8F4FA;
             --gulu-accent: #6366f1;
             --text-main: #1A2E35;
-            --card-glass: rgba(255, 255, 255, 0.65);
-            --header-glass: rgba(255, 255, 255, 0.7);
+            --card-glass: rgba(255, 255, 255, 0.8);
+            --header-glass: rgba(255, 255, 255, 0.85);
         }
 
         body {
@@ -57,6 +58,9 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            will-change: transform;
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
 
         .bg-blur-gradient {
@@ -73,11 +77,9 @@
             top: 0;
             z-index: 100;
             padding: 12px 24px;
-            backdrop-filter: blur(15px) saturate(180%);
             background: var(--header-glass);
             border-bottom: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
-            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
 
         .header-inner {
@@ -92,11 +94,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            transition: transform 0.3s ease;
-        }
-
-        .logo:hover {
-            transform: scale(1.02);
         }
 
         .logo img {
@@ -105,7 +102,7 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         }
 
         .logo span {
@@ -128,16 +125,13 @@
             font-weight: 700;
             color: var(--gulu-dark);
             border: 1px solid rgba(0, 0, 0, 0.05);
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(5px);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(255, 255, 255, 0.6);
+            transition: background 0.15s ease, border-color 0.15s ease;
             cursor: pointer;
         }
 
         .header-link:hover {
             background: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
             border-color: var(--gulu);
         }
 
@@ -148,19 +142,6 @@
             margin: 0 auto;
             position: relative;
             z-index: 1;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .page-header {
@@ -195,16 +176,15 @@
         }
 
         .grade-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
+            background: var(--card-glass);
             border: 2px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
             border-radius: 24px;
             padding: 30px;
             width: 250px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -212,9 +192,9 @@
         }
 
         .grade-card:hover {
-            transform: translateY(-8px) scale(1.02);
+            transform: translateY(-5px);
             background: #fff;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
         }
 
         .grade-icon {
@@ -226,12 +206,7 @@
             justify-content: center;
             font-size: 32px;
             color: #fff;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease;
-        }
-
-        .grade-card:hover .grade-icon {
-            transform: rotate(10deg) scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
         }
 
         .grade-title-card {
@@ -289,7 +264,6 @@
         /* ============ GAMES VIEW ============ */
         .games-view-container {
             display: none;
-            animation: fadeIn 0.4s ease-out;
         }
 
         .back-to-grades {
@@ -304,23 +278,21 @@
             font-weight: 700;
             font-size: 1rem;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: border-color 0.15s ease;
             margin-bottom: 40px;
+            font-family: inherit;
         }
 
         .back-to-grades:hover {
             border-color: var(--gulu);
-            transform: translateX(-4px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
         }
 
         .grade-section {
-            background: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.6);
             border-radius: 30px;
             padding: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.6);
             display: none;
             /* Hidden by JS initially */
@@ -376,9 +348,9 @@
             background: #fff;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             border: 1px solid rgba(0, 0, 0, 0.04);
-            transition: all 0.3s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
             cursor: pointer;
             text-decoration: none;
             display: flex;
@@ -386,8 +358,8 @@
         }
 
         .game-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
         }
 
         .gc-thumb {
@@ -402,22 +374,17 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .game-card:hover .gc-thumb img {
-            transform: scale(1.05);
         }
 
         .gc-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.15s ease;
         }
 
         .gc-play {
@@ -429,8 +396,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transform: scale(0.8);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .gc-play .material-symbols-outlined {
@@ -441,10 +406,6 @@
 
         .game-card:hover .gc-overlay {
             opacity: 1;
-        }
-
-        .game-card:hover .gc-play {
-            transform: scale(1);
         }
 
         .gc-info {
@@ -475,8 +436,7 @@
             color: rgba(0, 0, 0, 0.4);
             font-size: .8rem;
             font-weight: 700;
-            backdrop-filter: blur(5px);
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.3);
         }
 
         /* ============ RESPONSIVE ============ */
@@ -503,6 +463,9 @@
             }
             .page-title {
                 font-size: 2.5rem;
+            }
+            .hide-mobile {
+                display: none;
             }
         }
 
@@ -541,9 +504,7 @@
 
 <body>
     <!-- Animated background -->
-    <div class="bg-container">
-        <img src="/static/videos/fondo.webp" alt="" class="bg-webp" aria-hidden="true" />
-    </div>
+    <div class="bg-container" style="background: #f0f4f8;"><img src="/static/videos/fondo.webp" alt="" class="bg-webp" aria-hidden="true" loading="eager" /></div>
 
     <!-- Blur/Contrast overlay -->
     <div class="bg-blur-gradient"></div>
@@ -552,14 +513,21 @@
     <header class="header">
         <div class="header-inner">
             <a href="/" class="logo">
-                <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+                <img src="/static/images/icono.png" alt="Gulu" />
                 <span>gulugulu</span>
             </a>
-            <a href="/" class="header-link">
-                <span class="material-symbols-outlined"
-                    style="font-size:18px;font-variation-settings:'FILL' 0,'wght' 400">home</span>
-                Volver
-            </a>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <button onclick="toggleFullScreen()" class="header-link" style="cursor: pointer; font-family: inherit;">
+                    <span class="material-symbols-outlined" id="fullscreenIcon"
+                        style="font-size:18px;font-variation-settings:'FILL' 0,'wght' 400">fullscreen</span>
+                    <span id="fullscreenText" class="hide-mobile">Pantalla Completa</span>
+                </button>
+                <a href="/" class="header-link">
+                    <span class="material-symbols-outlined"
+                        style="font-size:18px;font-variation-settings:'FILL' 0,'wght' 400">home</span>
+                    Volver
+                </a>
+            </div>
         </div>
     </header>
 
@@ -604,11 +572,11 @@
             <div class="grade-section gs-1" id="gs-1">
                 <h2 class="grade-title">Primer Grado</h2>
                 <div class="games-grid">
-                    {% for i in range(1, 11) %}
+                    {% for i in range(1, 21) %}
                     <a href="/juego/1/{{ i }}" class="game-card">
                         <div class="gc-thumb">
                             <img src="/static/images/miniaturas/Grado_1/min{{ i }}.png" alt="Juego {{ i }}"
-                                onerror="this.src='/static/images/gulu-icon.jpeg'" />
+                                onerror="this.src='/static/images/icono.png'" loading="lazy" />
                             <div class="gc-overlay">
                                 <div class="gc-play"><span class="material-symbols-outlined">play_arrow</span></div>
                             </div>
@@ -626,11 +594,11 @@
             <div class="grade-section gs-2" id="gs-2">
                 <h2 class="grade-title">Segundo Grado</h2>
                 <div class="games-grid">
-                    {% for i in range(1, 11) %}
+                    {% for i in range(1, 21) %}
                     <a href="/juego/2/{{ i }}" class="game-card">
                         <div class="gc-thumb">
                             <img src="/static/images/miniaturas/Grado_2/min{{ i }}.png" alt="Juego {{ i }}"
-                                onerror="this.src='/static/images/gulu-icon.jpeg'" />
+                                onerror="this.src='/static/images/icono.png'" loading="lazy" />
                             <div class="gc-overlay">
                                 <div class="gc-play"><span class="material-symbols-outlined">play_arrow</span></div>
                             </div>
@@ -648,11 +616,11 @@
             <div class="grade-section gs-3" id="gs-3">
                 <h2 class="grade-title">Tercer Grado</h2>
                 <div class="games-grid">
-                    {% for i in range(1, 11) %}
+                    {% for i in range(1, 21) %}
                     <a href="/juego/3/{{ i }}" class="game-card">
                         <div class="gc-thumb">
                             <img src="/static/images/miniaturas/Grado_3/min{{ i }}.png" alt="Juego {{ i }}"
-                                onerror="this.src='/static/images/gulu-icon.jpeg'" />
+                                onerror="this.src='/static/images/icono.png'" loading="lazy" />
                             <div class="gc-overlay">
                                 <div class="gc-play"><span class="material-symbols-outlined">play_arrow</span></div>
                             </div>
@@ -670,11 +638,11 @@
             <div class="grade-section gs-4" id="gs-4">
                 <h2 class="grade-title">Cuarto Grado</h2>
                 <div class="games-grid">
-                    {% for i in range(1, 11) %}
+                    {% for i in range(1, 21) %}
                     <a href="/juego/4/{{ i }}" class="game-card">
                         <div class="gc-thumb">
                             <img src="/static/images/miniaturas/Grado_4/min{{ i }}.png" alt="Juego {{ i }}"
-                                onerror="this.src='/static/images/gulu-icon.jpeg'" />
+                                onerror="this.src='/static/images/icono.png'" loading="lazy" />
                             <div class="gc-overlay">
                                 <div class="gc-play"><span class="material-symbols-outlined">play_arrow</span></div>
                             </div>
@@ -692,11 +660,11 @@
             <div class="grade-section gs-5" id="gs-5">
                 <h2 class="grade-title">Quinto Grado</h2>
                 <div class="games-grid">
-                    {% for i in range(1, 11) %}
+                    {% for i in range(1, 21) %}
                     <a href="/juego/5/{{ i }}" class="game-card">
                         <div class="gc-thumb">
                             <img src="/static/images/miniaturas/Grado_5/min{{ i }}.png" alt="Juego {{ i }}"
-                                onerror="this.src='/static/images/gulu-icon.jpeg'" />
+                                onerror="this.src='/static/images/icono.png'" loading="lazy" />
                             <div class="gc-overlay">
                                 <div class="gc-play"><span class="material-symbols-outlined">play_arrow</span></div>
                             </div>
@@ -715,7 +683,7 @@
     <div class="footer">🐧 Gulu busca en tu Biblioteca Escolar</div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        (function() {
             const gradeSelection = document.getElementById('grade-selection');
             const gamesView = document.getElementById('games-view');
             const btnBack = document.getElementById('btn-back');
@@ -729,6 +697,12 @@
                 card.addEventListener('click', () => {
                     const targetId = card.getAttribute('data-target');
 
+                    if (['gs-3', 'gs-4', 'gs-5'].includes(targetId)) {
+                        const grade = targetId.split('-')[1];
+                        navigateSpa(`/juego/${grade}/1`);
+                        return;
+                    }
+
                     // Hide selection, show games view
                     gradeSelection.style.display = 'none';
                     gamesView.style.display = 'block';
@@ -738,8 +712,8 @@
                     sections.forEach(sec => sec.style.display = 'none');
                     document.getElementById(targetId).style.display = 'block';
 
-                    // Smooth scroll to top
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Scroll to top
+                    window.scrollTo(0, 0);
                 });
             });
 
@@ -748,9 +722,9 @@
                 gamesView.style.display = 'none';
                 gradeSelection.style.display = 'flex';
                 subtitle.innerText = "Aprende jugando con Gulu. Selecciona tu grado escolar.";
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo(0, 0);
             });
-        });
+        })();
     </script>
 </body>
 

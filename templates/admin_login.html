@@ -8,7 +8,7 @@
     <link rel="icon" href="/static/images/icono.png" type="image/png">
     <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
     <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
-    <script src="/static/js/gsap.min.js"></script>
+    <script src="/static/js/fullscreen.js"></script>
     <style>
         /* ============ BASE ============ */
         *,
@@ -25,7 +25,7 @@
             --gulu-l: #E8F4FA;
             --gulu-accent: #6366f1;
             --text-main: #1A2E35;
-            --card-glass: rgba(255, 255, 255, 0.7);
+            --card-glass: rgba(255, 255, 255, 0.85);
         }
 
         body {
@@ -60,8 +60,7 @@
             position: fixed;
             inset: 0;
             z-index: -2;
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.45);
         }
 
         /* ============ LOGIN CARD ============ */
@@ -69,15 +68,12 @@
             width: 100%;
             max-width: 420px;
             background: var(--card-glass);
-            backdrop-filter: blur(20px) saturate(160%);
             border-radius: 32px;
             padding: 40px;
             border: 2px solid #fff;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.08);
             position: relative;
             z-index: 10;
-            opacity: 0;
-            transform: translateY(20px);
         }
 
         .card-header {
@@ -90,12 +86,12 @@
             height: 80px;
             border-radius: 50%;
             border: 4px solid #fff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
             margin-bottom: 16px;
         }
 
         .card-header h2 {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 800;
             letter-spacing: -0.03em;
             background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
@@ -129,7 +125,6 @@
             position: relative;
             display: flex;
             align-items: center;
-            transition: transform 0.2s;
         }
 
         .input-wrapper input {
@@ -144,7 +139,7 @@
             font-size: 1rem;
             font-weight: 600;
             color: var(--text-main);
-            transition: all 0.2s;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
         }
 
         .input-wrapper .icon {
@@ -181,8 +176,8 @@
             font-size: 1.1rem;
             color: #fff;
             background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%);
-            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.3), inset 0 -3px 6px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(37, 99, 235, 0.3);
-            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+            transition: transform 0.1s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -190,8 +185,7 @@
         }
 
         .login-btn:hover {
-            transform: translateY(-1px) scale(1.02);
-            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(37, 99, 235, 0.4);
+            transform: scale(1.02);
         }
 
         .login-btn:active {
@@ -205,7 +199,7 @@
             font-size: .85rem;
             font-weight: 800;
             color: var(--gulu);
-            transition: all 0.2s;
+            transition: color 0.15s ease;
         }
 
         .back-link:hover {
@@ -223,6 +217,17 @@
             margin-bottom: 20px;
             border: 1px solid rgba(239, 68, 68, 0.2);
             display: none;
+        }
+
+        /* Error shake - pure CSS replacement for GSAP */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
+            20%, 40%, 60%, 80% { transform: translateX(6px); }
+        }
+
+        .login-card.shake {
+            animation: shake 0.5s ease-in-out;
         }
 
         /* Gulu mascot animation space */
@@ -253,7 +258,13 @@
                 font-size: 1rem;
             }
         }
-    </style>
+    
+        @media (max-width: 768px) {
+            .hide-mobile {
+                display: none;
+            }
+        }
+</style>
 </head>
 
 <body>
@@ -262,13 +273,18 @@
     </div>
     <div class="bg-blur"></div>
 
-    <div class="login-card">
+    <button onclick="toggleFullScreen()" style="position: absolute; top: 20px; right: 20px; z-index: 100; background: rgba(255,255,255,0.6); color: var(--gulu-dark); border: 1px solid rgba(0,0,0,0.1); cursor: pointer; border-radius: 40px; padding: 8px 16px; display: flex; align-items: center; gap: 8px; font-weight: 800; font-family: inherit;">
+        <span class="material-symbols-outlined" id="fullscreenIcon">fullscreen</span>
+        <span id="fullscreenText" class="hide-mobile">Pantalla Completa</span>
+    </button>
+
+    <div class="login-card{% if error %} shake{% endif %}">
         <div class="gulu-peek">
             <!-- Space for any small mascot animation if needed -->
         </div>
 
         <div class="card-header">
-            <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+            <img src="/static/images/icono.png" alt="Gulu" />
             <h2>Hola, Maestro 🐧</h2>
             <p>Acceso al Panel de Control</p>
         </div>
@@ -293,7 +309,7 @@
                     <input type="password" name="password" id="passwordInput" placeholder="Contraseña" required
                         style="padding-right: 52px;" />
                     <span class="material-symbols-outlined" id="togglePassword"
-                        style="position: absolute; right: 20px; color: #3B82F6; cursor: pointer; user-select: none; font-size: 22px; opacity: 0.6; transition: opacity 0.2s;"
+                        style="position: absolute; right: 20px; color: #3B82F6; cursor: pointer; user-select: none; font-size: 22px; opacity: 0.6; transition: opacity 0.15s;"
                         onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">visibility</span>
                 </div>
             </div>
@@ -308,37 +324,15 @@
     </div>
 
     <script>
-        // Entrance animation
-        gsap.to('.login-card', {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: "back.out(1.2)"
-        });
-
-        // Shake on error
-        const urlParams = new URLSearchParams(window.location.search);
-        if ({{ 'true' if error else 'false' }}) {
-            gsap.to('.login-card', {
-                x: -10,
-                duration: 0.1,
-                repeat: 5,
-                yoyo: true,
-                ease: "power2.inOut",
-                onComplete: () => gsap.set('.login-card', { x: 0 })
-            });
-        }
-
         // Password Toggle
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('passwordInput');
+        var togglePassword = document.getElementById('togglePassword');
+        var passwordInput = document.getElementById('passwordInput');
 
-        togglePassword.addEventListener('click', () => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        togglePassword.addEventListener('click', function() {
+            var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
             togglePassword.textContent = type === 'password' ? 'visibility' : 'visibility_off';
         });
     </script>
 </body>
-
 </html>

@@ -8,7 +8,7 @@
     <link rel="icon" href="/static/images/icono.png" type="image/png">
     <link href="/static/css/fonts/plus-jakarta-sans.css" rel="stylesheet" />
     <link href="/static/css/fonts/material-symbols.css" rel="stylesheet" />
-    <script src="/static/js/gsap.min.js"></script>
+    <script src="/static/js/fullscreen.js"></script>
     <style>
         /* ============ BASE ============ */
         *,
@@ -63,8 +63,7 @@
             position: fixed;
             inset: 0;
             z-index: -2;
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.55);
         }
 
         /* ============ HEADER ============ */
@@ -73,10 +72,9 @@
             top: 0;
             z-index: 100;
             padding: 12px 24px;
-            backdrop-filter: blur(15px) saturate(180%);
-            background: var(--header-glass);
+            background: rgba(255, 255, 255, 0.9);
             border-bottom: 1px solid #fff;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
 
         .header-inner {
@@ -102,8 +100,9 @@
         }
 
         .logo span {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 800;
+            letter-spacing: -0.03em;
             background: linear-gradient(135deg, var(--gulu), var(--gulu-accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -166,20 +165,14 @@
         }
 
         .stat-card {
-            background: var(--card-glass);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85);
             border-radius: 20px;
             padding: 24px;
             border: 1px solid #fff;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
             display: flex;
             align-items: center;
             gap: 16px;
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
         }
 
         .stat-icon {
@@ -213,11 +206,10 @@
         }
 
         .dashboard-card {
-            background: var(--card-glass);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85);
             border-radius: 24px;
             border: 1px solid #fff;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
             overflow: hidden;
         }
 
@@ -531,11 +523,10 @@
 
         /* Sections */
         .section-card {
-            background: var(--card-glass);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85);
             border-radius: 24px;
             border: 1px solid #fff;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
             overflow: hidden;
         }
 
@@ -809,8 +800,7 @@
             position: fixed;
             inset: 0;
             z-index: 500;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(6px);
+            background: rgba(0, 0, 0, 0.5);
             display: none;
             align-items: center;
             justify-content: center;
@@ -1068,7 +1058,14 @@
                 gap: 16px;
             }
         }
-    </style>
+    
+        @media (max-width: 768px) {
+            .hide-mobile {
+                display: none;
+            }
+        }
+</style>
+    <script src="/static/js/fullscreen.js"></script>
 </head>
 
 <body>
@@ -1155,10 +1152,14 @@
     <header class="header">
         <div class="header-inner">
             <a href="/" class="logo">
-                <img src="/static/images/gulu-icon.jpeg" alt="Gulu" />
+                <img src="/static/images/icono.png" alt="Gulu" />
                 <span>gulugulu</span>
             </a>
-            <div class="nav-links">
+            <div class="nav-links" style="align-items: center; gap: 12px;">
+                <button onclick="toggleFullScreen()" class="nav-btn" style="background: rgba(255,255,255,0.4); color: var(--gulu-dark); border: 1px solid rgba(0,0,0,0.1); cursor: pointer; box-shadow: none;">
+                    <span class="material-symbols-outlined" id="fullscreenIcon">fullscreen</span>
+                    <span id="fullscreenText" class="hide-mobile">Pantalla Completa</span>
+                </button>
                 <a href="/" class="nav-btn"><span class="material-symbols-outlined">home</span> Inicio</a>
                 <a href="/logout" class="nav-btn danger"><span class="material-symbols-outlined">logout</span> Salir</a>
             </div>
@@ -1633,10 +1634,9 @@
     </main>
 
     <script>
-        // Animations
-        gsap.from('.header', { y: -30, opacity: 0, duration: 0.6, ease: "power3.out" });
-        gsap.from('.stat-card', { y: 20, opacity: 0, duration: 0.5, stagger: 0.12, ease: "power3.out", delay: 0.3 });
-        gsap.from('.section-card', { y: 30, opacity: 0, duration: 0.7, stagger: 0.15, ease: "power3.out", delay: 0.5 });
+        // =============================================
+        // GULUGULU ADMIN OPTIMIZED (Vanilla JS)
+        // =============================================
 
         // Logic
         const dropZone = document.getElementById('dropZone');
@@ -1648,27 +1648,29 @@
 
         let selectedFiles = [];
 
-        dropZone.onclick = () => fileInput.click();
+        if (dropZone) {
+            dropZone.onclick = () => fileInput.click();
+            dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); };
+            dropZone.ondragleave = () => dropZone.classList.remove('drag-over');
+            dropZone.ondrop = (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                if (e.dataTransfer.files.length) {
+                    addFiles(e.dataTransfer.files);
+                }
+            };
+        }
 
-        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); };
-        dropZone.ondragleave = () => dropZone.classList.remove('drag-over');
-        dropZone.ondrop = (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-            if (e.dataTransfer.files.length) {
-                addFiles(e.dataTransfer.files);
-            }
-        };
-
-        fileInput.onchange = () => {
-            if (fileInput.files.length) {
-                addFiles(fileInput.files);
-            }
-        };
+        if (fileInput) {
+            fileInput.onchange = () => {
+                if (fileInput.files.length) {
+                    addFiles(fileInput.files);
+                }
+            };
+        }
 
         function addFiles(files) {
             for (let file of files) {
-                // Store file + its specific metadata
                 if (!selectedFiles.some(f => f.file.name === file.name && f.file.size === file.size)) {
                     selectedFiles.push({
                         file: file,
@@ -1692,6 +1694,7 @@
         }
 
         function updateFileDisplay() {
+            if (!fileListPreview) return;
             fileListPreview.innerHTML = '';
 
             if (selectedFiles.length === 0) {
@@ -1759,51 +1762,52 @@
                     </div>
                 `;
                 fileListPreview.appendChild(item);
-                gsap.from(item, { y: 10, opacity: 0, duration: 0.3, delay: index * 0.05 });
             });
         }
 
-        document.getElementById('uploadForm').onsubmit = async (e) => {
-            e.preventDefault();
-            if (selectedFiles.length === 0) return;
+        const uploadForm = document.getElementById('uploadForm');
+        if (uploadForm) {
+            uploadForm.onsubmit = async (e) => {
+                e.preventDefault();
+                if (selectedFiles.length === 0) return;
 
-            const fd = new FormData();
-            selectedFiles.forEach(item => {
-                fd.append('file', item.file);
-                fd.append('grade', item.grade);
-                fd.append('subject', item.subject);
-            });
+                const fd = new FormData();
+                selectedFiles.forEach(item => {
+                    fd.append('file', item.file);
+                    fd.append('grade', item.grade);
+                    fd.append('subject', item.subject);
+                });
 
-            uploadBtn.disabled = true;
-            status.textContent = `Subiendo ${selectedFiles.length} ${selectedFiles.length === 1 ? 'archivo' : 'archivos'}...`;
-            status.style.color = 'var(--gulu)';
+                uploadBtn.disabled = true;
+                status.textContent = `Subiendo ${selectedFiles.length}...`;
+                status.style.color = 'var(--gulu)';
 
-            try {
-                const r = await fetch('/admin/upload', { method: 'POST', body: fd });
-                const d = await r.json();
-                //Observer
-                if (d.success) {
-                    status.textContent = `¡Listo! ${d.count} archivos guardados.`;
-                    status.style.color = '#10b981';
-                    selectedFiles = [];
-                    updateFileDisplay();
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    status.textContent = d.error || 'Error al subir.';
+                try {
+                    const r = await fetch('/admin/upload', { method: 'POST', body: fd });
+                    const d = await r.json();
+                    if (d.success) {
+                        status.textContent = `¡Listo!`;
+                        status.style.color = '#10b981';
+                        selectedFiles = [];
+                        updateFileDisplay();
+                        setTimeout(() => navigateSpa('/admin/dashboard'), 1500);
+                    } else {
+                        status.textContent = d.error || 'Error.';
+                        status.style.color = '#ef4444';
+                        uploadBtn.disabled = false;
+                    }
+                } catch (e) {
+                    status.textContent = 'Error de red.';
                     status.style.color = '#ef4444';
                     uploadBtn.disabled = false;
                 }
-            } catch (e) {
-                status.textContent = 'Error de red.';
-                status.style.color = '#ef4444';
-                uploadBtn.disabled = false;
-            }
-        };
+            };
+        }
 
         async function deleteFile(name, btn) {
-            if (!confirm(`¿Seguro que quieres borrar "${name}"?`)) return;
+            if (!confirm(`¿Borrar "${name}"?`)) return;
             const row = btn.closest('.file-row');
-            gsap.to(row, { opacity: 0.4, filter: 'grayscale(1)' });
+            row.style.opacity = '0.3';
 
             const fd = new FormData();
             fd.append('filename', name);
@@ -1811,30 +1815,28 @@
                 const r = await fetch('/admin/delete', { method: 'POST', body: fd });
                 const d = await r.json();
                 if (d.success) {
-                    gsap.to(row, { height: 0, opacity: 0, margin: 0, padding: 0, duration: 0.4, ease: "power2.in", onComplete: () => row.remove() });
+                    row.remove();
+                    updateFilesPagination();
                 } else {
                     alert('Error: ' + d.error);
-                    gsap.to(row, { opacity: 1, filter: 'none' });
+                    row.style.opacity = '1';
                 }
             } catch (e) {
                 alert('Error de red');
-                gsap.to(row, { opacity: 1, filter: 'none' });
+                row.style.opacity = '1';
             }
         }
-
-        // ============ USER MANAGEMENT ============
 
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
             toast.innerHTML = `<span class="material-symbols-outlined" style="font-size:18px;">${type === 'success' ? 'check_circle' : 'error'}</span> ${message}`;
             document.body.appendChild(toast);
-            gsap.fromTo(toast,
-                { opacity: 0, y: 30, scale: 0.9 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.7)" }
-            );
             setTimeout(() => {
-                gsap.to(toast, { opacity: 0, y: -20, duration: 0.3, onComplete: () => toast.remove() });
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
 
@@ -1856,16 +1858,6 @@
             document.getElementById('editModal').classList.remove('active');
         }
 
-        // Close modal on overlay click
-        document.getElementById('editModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) closeEditModal();
-        });
-
-        // Close modal on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeEditModal();
-        });
-
         async function saveEditUser() {
             const cedula = document.getElementById('editCedula').value;
             const name = document.getElementById('editName').value.trim();
@@ -1873,13 +1865,9 @@
             const password = document.getElementById('editPassword').value;
 
             if (!name || !username) {
-                showToast('Nombre y usuario son obligatorios', 'error');
+                showToast('Faltan campos', 'error');
                 return;
             }
-
-            const saveBtn = document.getElementById('editSaveBtn');
-            saveBtn.disabled = true;
-            saveBtn.style.opacity = '0.5';
 
             const fd = new FormData();
             fd.append('cedula', cedula);
@@ -1891,112 +1879,63 @@
                 const r = await fetch('/admin/update_user', { method: 'POST', body: fd });
                 const d = await r.json();
                 if (d.success) {
-                    // Update the row in the table
-                    const row = document.querySelector(`tr[data-cedula="${cedula}"]`);
-                    if (row) {
-                        row.dataset.name = name;
-                        row.dataset.username = username;
-                        row.cells[1].textContent = name;
-                        row.cells[2].textContent = `@${username}`;
-                        gsap.fromTo(row, { background: 'rgba(16, 185, 129, 0.15)' }, { background: 'transparent', duration: 1.5 });
-                    }
+                    navigateSpa('/admin/dashboard');
                     closeEditModal();
-                    showToast('Usuario actualizado correctamente');
                 } else {
-                    showToast(d.error || 'Error al actualizar', 'error');
+                    showToast(d.error, 'error');
                 }
             } catch (e) {
-                showToast('Error de red', 'error');
+                showToast('Error', 'error');
             }
-
-            saveBtn.disabled = false;
-            saveBtn.style.opacity = '1';
         }
 
         async function deleteUser(row) {
             const cedula = row.dataset.cedula;
             const name = row.dataset.name;
-            if (!confirm(`¿Seguro que quieres eliminar al maestro "${name}" (${cedula})?`)) return;
-
-            gsap.to(row, { opacity: 0.4, filter: 'grayscale(1)' });
+            if (!confirm(`¿Eliminar maestro "${name}"?`)) return;
 
             const fd = new FormData();
             fd.append('cedula', cedula);
-
             try {
                 const r = await fetch('/admin/delete_user', { method: 'POST', body: fd });
                 const d = await r.json();
                 if (d.success) {
-                    gsap.to(row, {
-                        height: 0, opacity: 0, margin: 0, padding: 0,
-                        duration: 0.4, ease: "power2.in",
-                        onComplete: () => {
-                            row.remove();
-                            // Update counter
-                            const countEl = document.getElementById('userCountStat');
-                            if (countEl) countEl.textContent = document.querySelectorAll('.user-row').length;
-                        }
-                    });
-                    showToast('Usuario eliminado correctamente');
-                } else {
-                    showToast(d.error || 'Error al eliminar', 'error');
-                    gsap.to(row, { opacity: 1, filter: 'none' });
+                    row.remove();
+                    updateUsersPagination();
                 }
-            } catch (e) {
-                showToast('Error de red', 'error');
-                gsap.to(row, { opacity: 1, filter: 'none' });
-            }
+            } catch (e) {}
         }
+
         async function createBackup() {
-            if (!confirm('¿Deseas crear un nuevo backup de la base de datos ahora?')) return;
+            if (!confirm('¿Crear backup ahora?')) return;
             try {
-                showToast('Creando backup...', 'success');
                 const r = await fetch('/admin/backup/create', { method: 'POST' });
                 const d = await r.json();
-                if (d.success) {
-                    showToast('Backup creado exitosamente: ' + d.filename);
-                } else {
-                    showToast(d.error || 'Error al crear backup', 'error');
-                }
-            } catch (e) {
-                showToast('Error de red', 'error');
-            }
+                if (d.success) showToast('Backup listo: ' + d.filename);
+            } catch (e) {}
         }
 
         async function openBackupModal() {
             document.getElementById('backupModal').classList.add('active');
             const tbody = document.getElementById('backupList');
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Cargando backups...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5">Cargando...</td></tr>';
             try {
                 const r = await fetch('/admin/backup/list');
                 const d = await r.json();
                 if (d.success) {
-                    tbody.innerHTML = '';
-                    if (d.backups.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No hay backups disponibles</td></tr>';
-                        return;
-                    }
-                    d.backups.forEach(b => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
+                    tbody.innerHTML = d.backups.map(b => `
+                        <tr>
                             <td>${b.filename}</td>
-                            <td><span class="user-badge" style="background:${b.type === 'Base de Datos' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(16, 185, 129, 0.1)'}; color:${b.type === 'Base de Datos' ? 'var(--gulu-accent)' : '#10b981'};">${b.type}</span></td>
+                            <td>${b.type}</td>
                             <td>${b.date}</td>
                             <td>${b.size}</td>
                             <td style="text-align: right;">
-                                <button class="action-btn" style="color: var(--gulu);" onclick="restoreBackup('${b.filename}')" title="Restaurar este backup">
-                                    <span class="material-symbols-outlined">restore</span>
-                                </button>
+                                <button class="action-btn" onclick="restoreBackup('${b.filename}')"><span class="material-symbols-outlined">restore</span></button>
                             </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Error: ${d.error}</td></tr>`;
+                        </tr>
+                    `).join('');
                 }
-            } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Error de red</td></tr>';
-            }
+            } catch (e) {}
         }
 
         function closeBackupModal() {
@@ -2004,236 +1943,59 @@
         }
 
         async function restoreBackup(filename) {
-            if (!confirm(`¿Estás SEGURO de restaurar el backup "${filename}"?\n\nLa base de datos actual será reemplazada. Esta acción no se puede deshacer.`)) return;
+            if (!confirm(`¿Restaurar "${filename}"?`)) return;
             try {
-                showToast('Restaurando base de datos...', 'success');
                 const fd = new FormData();
                 fd.append('filename', filename);
                 const r = await fetch('/admin/backup/restore', { method: 'POST', body: fd });
                 const d = await r.json();
-                if (d.success) {
-                    showToast('Base de datos restaurada correctamente. Recargando...', 'success');
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showToast(d.error || 'Error al restaurar', 'error');
-                }
-            } catch (e) {
-                showToast('Error de red', 'error');
-            }
+                if (d.success) location.reload();
+            } catch (e) {}
         }
 
-        // ============ USER PAGINATION ============
+        // ============ PAGINATION ============
         let userCurrentPage = 1;
         const usersPerPage = 5;
-
-        function updateUsersPagination() {
-            const rows = Array.from(document.querySelectorAll('.user-row'));
-            const totalUsers = rows.length;
-            const totalPages = Math.ceil(totalUsers / usersPerPage);
-
-            if (totalUsers === 0) {
-                document.getElementById('userPagination').style.display = 'none';
-                return;
-            } else {
-                document.getElementById('userPagination').style.display = 'flex';
-            }
-
-            // Ensure current page is valid
-            if (userCurrentPage > totalPages) userCurrentPage = totalPages || 1;
-            if (userCurrentPage < 1) userCurrentPage = 1;
-
-            const start = (userCurrentPage - 1) * usersPerPage;
-            const end = start + usersPerPage;
-
-            rows.forEach((row, index) => {
-                if (index >= start && index < end) {
-                    if (row.style.display === 'none') {
-                        row.style.display = '';
-                        gsap.fromTo(row, { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.3, delay: (index - start) * 0.05 });
-                    }
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            // Update info
-            const rangeEnd = Math.min(end, totalUsers);
-            document.getElementById('userPageRange').textContent = `${totalUsers === 0 ? 0 : start + 1}-${rangeEnd}`;
-            document.getElementById('userTotalCount').textContent = totalUsers;
-
-            // Update buttons
-            document.getElementById('prevUserPage').disabled = userCurrentPage === 1;
-            document.getElementById('nextUserPage').disabled = userCurrentPage === totalPages;
-
-            // Page numbers
-            const pageNumbers = document.getElementById('userPageNumbers');
-            pageNumbers.innerHTML = '';
-
-            // Simple pagination: 1 2 3 ...
-            for (let i = 1; i <= totalPages; i++) {
-                if (totalPages > 7) {
-                    // Show first, last, and current surroundings
-                    if (i === 1 || i === totalPages || (i >= userCurrentPage - 1 && i <= userCurrentPage + 1)) {
-                        addPageButton(i);
-                    } else if (i === userCurrentPage - 2 || i === userCurrentPage + 2) {
-                        const dots = document.createElement('span');
-                        dots.textContent = '...';
-                        dots.style.color = 'rgba(0,0,0,0.2)';
-                        dots.style.fontWeight = '800';
-                        dots.style.padding = '0 4px';
-                        pageNumbers.appendChild(dots);
-                    }
-                } else {
-                    addPageButton(i);
-                }
-            }
-        }
-
-        function addPageButton(i) {
-            const btn = document.createElement('button');
-            btn.className = `page-num ${i === userCurrentPage ? 'active' : ''}`;
-            btn.textContent = i;
-            btn.onclick = () => {
-                userCurrentPage = i;
-                updateUsersPagination();
-                document.getElementById('userManagementCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            };
-            document.getElementById('userPageNumbers').appendChild(btn);
-        }
-
-        document.getElementById('prevUserPage').onclick = () => {
-            if (userCurrentPage > 1) {
-                userCurrentPage--;
-                updateUsersPagination();
-            }
-        };
-
-        document.getElementById('nextUserPage').onclick = () => {
-            const rows = document.querySelectorAll('.user-row');
-            if (userCurrentPage < Math.ceil(rows.length / usersPerPage)) {
-                userCurrentPage++;
-                updateUsersPagination();
-            }
-        };
-
-        // Initialize pagination
-        updateUsersPagination();
-
-        // Hook into deleteUser to refresh pagination
-        const originalDeleteUser = deleteUser;
-        deleteUser = async function(row) {
-            await originalDeleteUser(row);
-            updateUsersPagination();
-        };
-
-        // Hook into showToast/Create logic if needed, but since it's a page reload for create, it's fine.
-        // Actually, the edit user logic doesn't reload, so it's fine too.
-
-        // ============ FILE PAGINATION ============
         let fileCurrentPage = 1;
         const filesPerPage = 10;
 
+        function updateUsersPagination() {
+            const rows = Array.from(document.querySelectorAll('.user-row'));
+            const total = rows.length;
+            const pages = Math.ceil(total / usersPerPage);
+            if (total === 0) { if(document.getElementById('userPagination')) document.getElementById('userPagination').style.display='none'; return; }
+            
+            const start = (userCurrentPage - 1) * usersPerPage;
+            const end = start + usersPerPage;
+            rows.forEach((r, i) => r.style.display = (i >= start && i < end) ? '' : 'none');
+
+            if(document.getElementById('userPageRange')) document.getElementById('userPageRange').textContent = `${start+1}-${Math.min(end, total)}`;
+            if(document.getElementById('prevUserPage')) document.getElementById('prevUserPage').disabled = userCurrentPage === 1;
+            if(document.getElementById('nextUserPage')) document.getElementById('nextUserPage').disabled = userCurrentPage === pages;
+        }
+
         function updateFilesPagination() {
             const rows = Array.from(document.querySelectorAll('.file-row'));
-            const totalFiles = rows.length;
-            const totalPages = Math.ceil(totalFiles / filesPerPage);
-
-            if (totalFiles === 0) {
-                document.getElementById('filePagination').style.display = 'none';
-                return;
-            } else {
-                document.getElementById('filePagination').style.display = 'flex';
-            }
-
-            // Ensure current page is valid
-            if (fileCurrentPage > totalPages) fileCurrentPage = totalPages || 1;
-            if (fileCurrentPage < 1) fileCurrentPage = 1;
-
+            const total = rows.length;
+            const pages = Math.ceil(total / filesPerPage);
+            if (total === 0) { if(document.getElementById('filePagination')) document.getElementById('filePagination').style.display='none'; return; }
+            
             const start = (fileCurrentPage - 1) * filesPerPage;
             const end = start + filesPerPage;
+            rows.forEach((r, i) => r.style.display = (i >= start && i < end) ? '' : 'none');
 
-            rows.forEach((row, index) => {
-                if (index >= start && index < end) {
-                    if (row.style.display === 'none') {
-                        row.style.display = '';
-                        gsap.fromTo(row, { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.3, delay: (index - start) * 0.03 });
-                    }
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            // Update info
-            const rangeEnd = Math.min(end, totalFiles);
-            document.getElementById('filePageRange').textContent = `${totalFiles === 0 ? 0 : start + 1}-${rangeEnd}`;
-            document.getElementById('fileTotalCount').textContent = totalFiles;
-
-            // Update buttons
-            document.getElementById('prevFilePage').disabled = fileCurrentPage === 1;
-            document.getElementById('nextFilePage').disabled = fileCurrentPage === totalPages;
-
-            // Page numbers
-            const pageNumbers = document.getElementById('filePageNumbers');
-            pageNumbers.innerHTML = '';
-
-            for (let i = 1; i <= totalPages; i++) {
-                if (totalPages > 7) {
-                    if (i === 1 || i === totalPages || (i >= fileCurrentPage - 1 && i <= fileCurrentPage + 1)) {
-                        addFilePageButton(i);
-                    } else if (i === fileCurrentPage - 2 || i === fileCurrentPage + 2) {
-                        const dots = document.createElement('span');
-                        dots.textContent = '...';
-                        dots.style.color = 'rgba(0,0,0,0.2)';
-                        dots.style.fontWeight = '800';
-                        dots.style.padding = '0 4px';
-                        pageNumbers.appendChild(dots);
-                    }
-                } else {
-                    addFilePageButton(i);
-                }
-            }
+            if(document.getElementById('filePageRange')) document.getElementById('filePageRange').textContent = `${start+1}-${Math.min(end, total)}`;
+            if(document.getElementById('prevFilePage')) document.getElementById('prevFilePage').disabled = fileCurrentPage === 1;
+            if(document.getElementById('nextFilePage')) document.getElementById('nextFilePage').disabled = fileCurrentPage === pages;
         }
 
-        function addFilePageButton(i) {
-            const btn = document.createElement('button');
-            btn.className = `page-num ${i === fileCurrentPage ? 'active' : ''}`;
-            btn.textContent = i;
-            btn.onclick = () => {
-                fileCurrentPage = i;
-                updateFilesPagination();
-                document.getElementById('fileList').parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            };
-            document.getElementById('filePageNumbers').appendChild(btn);
-        }
+        document.getElementById('prevUserPage')?.addEventListener('click', () => { if(userCurrentPage > 1) { userCurrentPage--; updateUsersPagination(); }});
+        document.getElementById('nextUserPage')?.addEventListener('click', () => { if(userCurrentPage < Math.ceil(document.querySelectorAll('.user-row').length/usersPerPage)) { userCurrentPage++; updateUsersPagination(); }});
+        document.getElementById('prevFilePage')?.addEventListener('click', () => { if(fileCurrentPage > 1) { fileCurrentPage--; updateFilesPagination(); }});
+        document.getElementById('nextFilePage')?.addEventListener('click', () => { if(fileCurrentPage < Math.ceil(document.querySelectorAll('.file-row').length/filesPerPage)) { fileCurrentPage++; updateFilesPagination(); }});
 
-        document.getElementById('prevFilePage').onclick = () => {
-            if (fileCurrentPage > 1) {
-                fileCurrentPage--;
-                updateFilesPagination();
-            }
-        };
-
-        document.getElementById('nextFilePage').onclick = () => {
-            const rows = document.querySelectorAll('.file-row');
-            if (fileCurrentPage < Math.ceil(rows.length / filesPerPage)) {
-                fileCurrentPage++;
-                updateFilesPagination();
-            }
-        };
-
-        // Initialize pagination
+        updateUsersPagination();
         updateFilesPagination();
-
-        // Hook into deleteFile to refresh pagination
-        const originalDeleteFile = deleteFile;
-        deleteFile = async function(name, btn) {
-            const row = btn.closest('.file-row');
-            // Wait for the deletion logic (original function doesn't return promise but we know it's async)
-            await originalDeleteFile(name, btn);
-            // Since originalDeleteFile is async and we need to wait for the animation/removal
-            // I'll add a small delay or check for removal
-            setTimeout(updateFilesPagination, 500);
-        };
     </script>
 </body>
 
